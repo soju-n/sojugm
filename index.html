@@ -4,19 +4,21 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-<!-- ↓↓↓ ここから追加：キャッシュ無効化の設定 ↓↓↓ -->
+<!-- ★ キャッシュ無効化（ブラウザに常に最新版を読ませる） -->
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<!-- ↑↑↑ ここまで追加 ↑↑↑ -->
-  
+
 <title>走れ！ネガティ豚 -オフィス街サバイバル-</title>
 <style>
   body { margin: 0; padding: 0; background-color: #111; font-family: 'Helvetica Neue', Arial, sans-serif; touch-action: none; overflow: hidden; }
   #game-wrapper { position: relative; width: 100vw; height: 100vh; max-width: 800px; margin: 0 auto; background-color: #000; }
-  canvas { display: block; width: 100%; height: 100%; }
   
-  /* ★ パスコード入力画面 */
+  /* ★ 修正：LINEブラウザ対策はメインのゲーム画面(#gameCanvas)だけに適用する */
+  canvas { display: block; width: 100%; height: 100%; }
+  #gameCanvas { min-height: 100vh; }
+  
+  /* パスコード入力画面 */
   #password-gate { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #111; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; color: white; }
   #pw-title { color: #f1c40f; font-size: 24px; font-weight: bold; margin-bottom: 20px; text-shadow: 2px 2px 0 #000; }
   #pw-input { padding: 15px; font-size: 28px; border-radius: 8px; border: 3px solid #3498db; text-align: center; width: 120px; letter-spacing: 5px; margin-bottom: 20px; background: #2c3e50; color: #fff; font-weight: bold; outline: none; }
@@ -44,7 +46,7 @@
   #hud-explanations { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 101; }
   .hud-exp-item { position: absolute; color: #f1c40f; font-size: 11px; font-weight: bold; text-shadow: 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000; white-space: nowrap; }
 
-  /* ★ 遊び方モーダル (topを54%に引き上げて被りを防止) */
+  /* 遊び方モーダル */
   #how-to-modal { display: none; position: absolute; top: 54%; left: 50%; transform: translate(-50%, -50%); width: 95%; max-width: 450px; background: rgba(44, 62, 80, 0.95); color: white; z-index: 100; border-radius: 12px; padding: 20px; box-sizing: border-box; border: 4px solid #f1c40f; box-shadow: 0 10px 20px rgba(0,0,0,0.5); pointer-events: auto; }
   #how-to-modal h2 { text-align: center; color: #f1c40f; margin-top: 0; margin-bottom: 12px; font-size: 20px; }
   
@@ -73,6 +75,7 @@
 </head>
 <body>
 
+<!-- パスコード画面 -->
 <div id="password-gate">
   <div id="pw-title">SYSTEM LOGIN</div>
   <input type="password" id="pw-input" inputmode="numeric" maxlength="4" placeholder="****">
@@ -83,7 +86,7 @@
 <div id="game-wrapper">
   <canvas id="gameCanvas"></canvas>
   
-  <!-- ★ プレイ画面HUDの説明テキスト (高さを微調整してピッタリに) -->
+  <!-- プレイ画面HUDの説明テキスト -->
   <div id="hud-explanations">
     <div class="hud-exp-item" style="top: 16px; left: 100px;">（現在のスコア。勤労(はし)り続けた命の代価だ！）</div>
     <div class="hud-exp-item" style="top: 51px; left: 175px;">（ゼロになると過労で倒れるので注意だ！）</div>
@@ -121,7 +124,6 @@
         <div class="icon-container"><canvas id="icon-acorn" style="width:40px; height:40px;"></canvas></div>
         <div class="how-to-text"><strong>ドングリ</strong>500pt / メンタルを全回復。豚さんはドングリが大好き。</div>
       </li>
-      <!-- ★ 転職活動の説明文を変更 -->
       <li>
         <div class="icon-container"><canvas id="icon-job" style="width:40px; height:40px;"></canvas></div>
         <div class="how-to-text"><strong>転職活動</strong>500pt / 30秒間無敵&2段ジャンプ。ステップアップを目指せ！テキにぶつかると解除されちゃうよ。</div>
@@ -157,6 +159,11 @@
 </div>
 
 <script>
+  // ★ LINE等での戻る/進むキャッシュ表示を防ぐ
+  if (window.performance && window.performance.navigation.type === window.performance.navigation.TYPE_BACK_FORWARD) {
+    window.location.reload(true);
+  }
+
   // --- 色パレットとスプライト変換 ---
   const colors = [ null, '#ffb6c1', '#000000', '#ff69b4', '#7f8c8d', '#ffffff', '#e74c3c', '#2c3e50', '#f1c40f', '#bdc3c7', '#87ceeb', '#2ecc71', '#c0392b', '#8B4513', '#D2B48C', '#1a252f', '#8e44ad', '#3498db', '#e67e22', '#fae5d3', '#e67e22', '#f39c12' ];
   function strToSprite(strArray) {
@@ -164,7 +171,6 @@
     return strArray.map(row => row.split('').map(char => map[char] || 0));
   }
 
-  // --- ドット絵データ ---
   const pigSprite = strToSprite([ "00000222200000000002222000000", "00002111122222222221111200000", "00021111111111111111111120000", "00021111211111111112111112000", "00021111F1111111111F111112000", "00021111111111111111111112000", "00021111111222222211111112000", "00002111112333333321111120000", "00002111123323332332111120000", "00000211123323332332111200000", "00000211112333333321111200000", "00000022111222222211122000000", "00002444225555555522444200000", "00024444442558885524444420000", "00244444444258885244444442000", "02444444444428882444444444200", "02444444444448884444444444200", "24444444444444444444444444222", "02244444444444444444444442DDD", "00244444444444444444444442DDD", "02244444444444444444444442DDD", "00022222222222222222222222220", "00000244420000000002444200000", "00000244420000000002444200000", "00000022200000000000222000000" ]);
   const bossMaleSprite = strToSprite([ "0000000000222222220000000000", "0000000022IIIIIIII2200000000", "00000002IIIIIIIIIIII20000000", "000000277IIIIIIIIII772000000", "000002777IIIIIIIIII777200000", "00000277IIIIIIIIIIII77200000", "0000027IIII22II22II772000000", "000002IIIII2662662III2000000", "000002IIIII222II222II2000000", "000002IIIIIIIIIIIIIII2000000", "0000002IIII222222IIII2000000", "000000022IIIIIIIIII220000000", "0000002772222222222772000000", "0000027777755555777772000000", "0000277777556555777777200000", "0002777777566657777777720000", "0002II777756665777777II20000", "0002II777776667777777II20000", "0000227777776777777772200000", "0000027777777777777772000000", "0000027777777777777772000000", "0000027777777777777772000000", "0000002222222222222220000000", "0000002222000000022220000000", "0000002222000000022220000000", "0000002222000000022220000000", "0000002222000000022220000000" ]);
   const bossFemaleSprite = strToSprite([ "0000000002222222220000000000", "000000002DDDDDDDDD2000000000", "00000002DDDDDDDDDDD200000000", "0000002DDDDDDDDDDDDD20000000", "000002DDDDDDDDDDDDDDD2000000", "000002DDDDDJJJJDDDDDD2000000", "000002DDDJJ22JJ22JJDD2000000", "000002DDJJJ2112112JJJ2000000", "000002DJJJJ222JJ222JJ2000000", "000002JJJJJJJJJJJJJJJ2000000", "000002JJJJJJ2662JJJJJ2000000", "0000002JJJJJ2222JJJJ20000000", "000000022JJJJJJJJJ2200000000", "0000002DD222222222DD20000000", "000002DDD555555555DDD2000000", "000002D2557777777552D2000000", "0000022555777777755522000000", "0000002555777777755520000000", "0000002555777777755520000000", "0000002222777777722220000000", "0000000002777777720000000000", "0000000002777777720000000000", "0000000002777777720000000000", "0000000002222222220000000000", "0000000002JJ2002JJ2000000000", "0000000002JJ2002JJ2000000000", "0000000022220000222200000000" ]);
@@ -508,7 +514,6 @@
     }
     
     update() {
-      // 演出中は通常スクロール
       if (this.type === 'home') this.x -= gameSpeed;
       else if (this.type.startsWith('train')) this.x -= gameSpeed * this.speedMulti;
       else if (this.type === 'email') { this.x -= gameSpeed * 1.3; this.drawYOffset = Math.sin(this.angle) * 20; this.angle += 0.05; }
@@ -880,20 +885,24 @@
   btnHowTo.addEventListener('click', openModal); btnHowTo.addEventListener('touchstart', openModal, {passive: false});
   btnCloseHowTo.addEventListener('click', closeModal); btnCloseHowTo.addEventListener('touchstart', closeModal, {passive: false});
 
-  window.addEventListener('DOMContentLoaded', () => {
-    drawIcon('icon-pig', pigSprite, 'pig', 40, 40, 1.2);
-    drawIcon('icon-heal', heartSprite, 'heal', 40, 40, 0.85);
-    drawIcon('icon-acorn', acornSprite, 'acorn', 40, 40, 0.85); 
-    drawIcon('icon-job', jobChangeSprite, 'job', 40, 40, 0.85);
-    drawIcon('icon-mail', emailSprite, 'mail', 40, 40, 1.0);
-    drawDoubleBossIcon();
-    drawIcon('icon-fire', fireballSprite, 'fire', 40, 40, 1.0);
-    drawIcon('icon-train', trainIconSprite, '', 40, 40, 1.0); 
-    drawIcon('icon-clock', clockIconSprite, '', 40, 40, 1.0); 
-    
-    gameState = 'password';
-    document.getElementById('center-ui').style.display = 'none';
-    resetGame(false); requestAnimationFrame(animate); 
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      resize();
+      drawIcon('icon-pig', pigSprite, 'pig', 40, 40, 1.2);
+      drawIcon('icon-heal', heartSprite, 'heal', 40, 40, 0.85);
+      drawIcon('icon-acorn', acornSprite, 'acorn', 40, 40, 0.85); 
+      drawIcon('icon-job', jobChangeSprite, 'job', 40, 40, 0.85);
+      drawIcon('icon-mail', emailSprite, 'mail', 40, 40, 1.0);
+      drawDoubleBossIcon();
+      drawIcon('icon-fire', fireballSprite, 'fire', 40, 40, 1.0);
+      drawIcon('icon-train', trainIconSprite, '', 40, 40, 1.0); 
+      drawIcon('icon-clock', clockIconSprite, '', 40, 40, 1.0); 
+
+      gameState = 'password';
+      document.getElementById('center-ui').style.display = 'none';
+      resetGame(false);
+      requestAnimationFrame(animate);
+    }, 100);
   });
 </script>
 </body>
