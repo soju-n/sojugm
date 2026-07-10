@@ -34,7 +34,7 @@
   #btn-how-to:active { transform: translateY(4px); box-shadow: none; }
 
   /* 遊び方モーダル */
-  #how-to-modal { display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 90%; max-width: 450px; background: rgba(44, 62, 80, 0.95); color: white; z-index: 100; border-radius: 12px; padding: 20px; box-sizing: border-box; border: 4px solid #f1c40f; box-shadow: 0 10px 20px rgba(0,0,0,0.5); pointer-events: auto; }
+  #how-to-modal { display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 95%; max-width: 450px; background: rgba(44, 62, 80, 0.95); color: white; z-index: 100; border-radius: 12px; padding: 20px; box-sizing: border-box; border: 4px solid #f1c40f; box-shadow: 0 10px 20px rgba(0,0,0,0.5); pointer-events: auto; }
   #how-to-modal h2 { text-align: center; color: #f1c40f; margin-top: 0; margin-bottom: 15px; }
   .how-to-list { list-style: none; padding: 0; margin: 0; font-size: 13px; line-height: 1.4; max-height: 65vh; overflow-y: auto;}
   .how-to-list li { display: flex; align-items: center; margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 12px; }
@@ -47,6 +47,10 @@
   .close-btn { background: #e74c3c; color: white; border: none; padding: 10px 30px; font-size: 18px; border-radius: 8px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 0 #c0392b; display: block; margin: 15px auto 0; }
   .close-btn:active { transform: translateY(4px); box-shadow: none; }
 
+  /* 遊び方内のUIボタン再現用スタイル */
+  .demo-btn-jump { background-color: #2ed573; color: white; border: 2px solid #27ae60; border-radius: 50%; width: 36px; height: 36px; font-size: 10px; font-weight: bold; display: flex; justify-content: center; align-items: center; box-shadow: 0 2px 0 rgba(0,0,0,0.4); }
+  .demo-btn-attack { background-color: #ff4757; color: white; border: 2px solid #c0392b; border-radius: 50%; width: 36px; height: 36px; font-size: 9px; font-weight: bold; display: flex; justify-content: center; align-items: center; box-shadow: 0 2px 0 rgba(0,0,0,0.4); }
+
   /* コントローラー */
   #controls { position: absolute; bottom: 80px; left: 0; width: 100%; display: flex; justify-content: space-between; padding: 0 30px; box-sizing: border-box; pointer-events: none; }
   .btn { width: 80px; height: 80px; border-radius: 50%; font-size: 16px; font-weight: bold; display: flex; justify-content: center; align-items: center; user-select: none; pointer-events: auto; opacity: 0.85; box-shadow: 0 4px 0 rgba(0,0,0,0.4); }
@@ -57,7 +61,6 @@
 </head>
 <body>
 
-<!-- ★ 初回起動用 パスコード画面 -->
 <div id="password-gate">
   <div id="pw-title">SYSTEM LOGIN</div>
   <input type="password" id="pw-input" inputmode="numeric" maxlength="4" placeholder="****">
@@ -68,7 +71,6 @@
 <div id="game-wrapper">
   <canvas id="gameCanvas"></canvas>
   
-  <!-- UIメニュー群 -->
   <div id="center-ui">
     <div id="ui-title"></div>
     <div id="ui-score"></div>
@@ -81,6 +83,18 @@
     <h2>遊び方 & ポイント</h2>
     <ul class="how-to-list">
       <li>
+        <div class="icon-container"><canvas id="icon-pig" style="width:40px; height:40px;"></canvas></div>
+        <div class="how-to-text"><strong>ネガティぶた</strong>社畜のサラリーマン。業務過多の毎日でもめげずに働いている。</div>
+      </li>
+      <li>
+        <div class="icon-container"><div class="demo-btn-jump">JUMP</div></div>
+        <div class="how-to-text"><strong>ジャンプボタン</strong>右下のボタンを押すと、ネガティぶたがジャンプする。踏むと倒せるテキがいるよ。</div>
+      </li>
+      <li>
+        <div class="icon-container"><div class="demo-btn-attack">退職届</div></div>
+        <div class="how-to-text"><strong>退職届</strong>左下のボタンを押すと、退職届を前方に飛ばすことができる。届をぶつけると、倒せるテキがいるよ。上司を踏んで届を集めよう。</div>
+      </li>
+      <li>
         <div class="icon-container"><canvas id="icon-heal" style="width:40px; height:40px;"></canvas></div>
         <div class="how-to-text"><strong>有休</strong>50pt / メンタルを1回復。休むのが一番大事。</div>
       </li>
@@ -90,7 +104,7 @@
       </li>
       <li>
         <div class="icon-container"><canvas id="icon-job" style="width:40px; height:40px;"></canvas></div>
-        <div class="how-to-text"><strong>転職(青矢印)</strong>500pt / 30秒間無敵&2段ジャンプ。</div>
+        <div class="how-to-text"><strong>転職(青矢印)</strong>500pt / 30秒間無敵&2段ジャンプ。ステップアップだ！</div>
       </li>
       <li>
         <div class="icon-container"><canvas id="icon-mail" style="width:40px; height:40px;"></canvas></div>
@@ -143,7 +157,6 @@
     "000000000000000DDDDD000000000000000", "0000000000000DDDDDDD000000000000000", "000000000000DDDDDDDDD00000000000000", "00000000000DDDDDDDDDDD0000000000000", "0000000000DDDDDDDDDDDDD000000000000", "000000000DDDDDDDDDDDDDDD00000000000", "00000000DDDDDDDDDDDDDDDDD0000000000", "0000000DDDDDDDDDDDDDDDDDDD000000000", "000000DDDDDDDDDDDDDDDDDDDDD00000000", "00000DDDDDDDDDDDDDDDDDDDDDDD0000000", "0000DDDDDDDDDDDDDDDDDDDDDDDDD000000", "000DDDDDDDDDDDDDDDDDDDDDDDDDDD00000", "00DDDDDDDDDDDDDDDDDDDDDDDDDDDDD0000", "0DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD000", "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD00", "02222222222222222222222222222222000", "02333333333333333333333333333332000", "023D33D333D333D3D333D333D333D332000", "02333333333333333333333333333332000", "02333333332222222222233333333332000", "0233333332FFFFFFFFFFF23333333332000", "0233338882FFFFFFFFFFF28883333332000", "0233338882FFFFFFFFFFF28883333332000", "0233333332FFFFFFFFFFF23333333332000", "0233333332FFFFFFFFFFF23333333332000", "0233333332FFFFFFFFFFF23333333332000", "0233333332FFFFFFFFFFF23333333332000", "02222222222222222222222222222222000", "EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE00", "0EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE000"
   ]);
   
-  // 遊び方アイコン専用
   const trainIconSprite = strToSprite([ "00000000000000000000000000000000", "02222222222222222222222222222220", "29999999999999999999999999999992", "29999999999999999999999999999992", "29922222299222222992222229999992", "2992AAAA2992AAAA2992AAAA29992292", "2992AAAA2992AAAA2992AAAA29992292", "2992AAAA2992AAAA2992AAAA29992292", "29922222299222222992222229999992", "29999999999999999999999999999992", "2BBBBBBBBBBBBBBBBBBBBBBBBBBBBBB2", "2BBBBBBBBBBBBBBBBBBBBBBBBBBBBBB2", "29999999999999999999999999999992", "29992299999992299999992299999992", "29992299999992299999992299999992", "29999999999999999999999999999992", "02222222222222222222222222222220", "00022002200000220022000002200220", "00022002200000220022000002200220", "00000000000000000000000000000000" ]);
   const clockIconSprite = strToSprite([ "000000002222222200000000", "000000225555555522000000", "000022555555555555220000", "000255555555555555552000", "002555555555555555555200", "025555555552255555555520", "025555555552255555555520", "255555555552255555555552", "255555555552255555555552", "255555555552255555555552", "255555555552255555555552", "255555555552255555555552", "255555555552222222225552", "255555555555555555555552", "255555555555555555555552", "255555555555555555555552", "255555555555555555555552", "025555555555555555555520", "025555555555555555555520", "002555555555555555555200", "000255555555555555552000", "000022555555555555220000", "000000225555555522000000", "000000002222222200000000" ]);
 
@@ -175,18 +188,22 @@
   }
   const trainSprite = generateTrain();
 
-  // --- アイコン描画処理 ---
+  // --- アイコン描画処理 (巨大化防止 ＆ 自動中央配置) ---
   function drawIcon(id, sprite, type='', cWidth=40, cHeight=40, scaleMultiplier=1) {
     const c = document.getElementById(id); if (!c) return;
     c.width = cWidth * 2; c.height = cHeight * 2; 
     c.style.width = cWidth + 'px'; c.style.height = cHeight + 'px';
     const ctx = c.getContext('2d');
+    
     const rows = sprite.length; const cols = sprite[0].length;
     const maxSize = Math.max(rows, cols);
+    // スケール計算。0.6などをかけることでCanvas内での大きさを安全に縮小
     let scale = Math.floor(Math.max(1, Math.min(c.width/cols, c.height/rows)) * scaleMultiplier);
+    
     const offsetX = Math.floor((c.width - cols * scale) / 2);
     const offsetY = Math.floor((c.height - rows * scale) / 2);
 
+    // ★ 特殊エフェクト描画
     if (type === 'acorn') {
       ctx.save(); ctx.globalAlpha = 0.3; let glowSize = scale * 1.5;
       let hOffsetX = offsetX + Math.floor((cols*scale - heartSprite[0].length*glowSize)/2);
@@ -203,18 +220,35 @@
       ctx.arc(offsetX + cols*scale/2, offsetY + rows*scale/2, cols*scale/2, 0, Math.PI*2); ctx.fill();
     }
 
+    // 本体描画
     for (let r = 0; r < rows; r++) {
       for (let col = 0; col < cols; col++) {
-        if (sprite[r][col] !== 0) { ctx.fillStyle = colors[sprite[r][col]]; ctx.fillRect(offsetX + col * scale, offsetY + r * scale, scale, scale); }
+        if (sprite[r][col] !== 0) {
+          ctx.fillStyle = colors[sprite[r][col]];
+          ctx.fillRect(offsetX + col * scale, offsetY + r * scale, scale, scale);
+        }
       }
     }
 
+    // ★ 文字の追加描画
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     const fs = Math.max(10, scale * 6);
-    if (type === 'heal') { ctx.fillStyle='white'; ctx.font=`bold ${fs}px sans-serif`; ctx.fillText('有休', offsetX+cols*scale/2, offsetY+rows*scale/2+scale*2); }
-    else if (type === 'job') { ctx.fillStyle='#ecf0f1'; ctx.font=`bold ${fs}px sans-serif`; ctx.fillText('転職', offsetX+cols*scale/2, offsetY+rows*scale/2+scale*2); }
-    else if (type === 'mail') { ctx.fillStyle='#c0392b'; ctx.font=`bold ${fs}px sans-serif`; ctx.fillText('至急', offsetX+cols*scale/2, offsetY+rows*scale/2+scale*2); }
-    else if (type === 'fire') { ctx.fillStyle='#000000'; ctx.font=`bold ${fs}px sans-serif`; ctx.fillText('激務', offsetX+cols*scale*0.65, offsetY+rows*scale/2+scale*2); }
+    if (type === 'heal') { 
+        ctx.fillStyle='white'; ctx.font=`bold ${fs}px sans-serif`; 
+        ctx.fillText('有休', offsetX+cols*scale/2, offsetY+rows*scale/2+scale*2); 
+    }
+    else if (type === 'job') { 
+        ctx.fillStyle='#ecf0f1'; ctx.font=`bold ${fs}px sans-serif`; 
+        ctx.fillText('転職', offsetX+cols*scale/2, offsetY+rows*scale/2+scale*2); 
+    }
+    else if (type === 'mail') { 
+        ctx.fillStyle='#c0392b'; ctx.font=`bold ${fs}px sans-serif`; 
+        ctx.fillText('至急', offsetX+cols*scale/2, offsetY+rows*scale/2+scale*2); 
+    }
+    else if (type === 'fire') { 
+        ctx.fillStyle='#000000'; ctx.font=`bold ${fs}px sans-serif`; 
+        ctx.fillText('激務', offsetX + cols * scale * 0.72, offsetY + rows * scale / 2 + scale * 1.5); 
+    }
   }
 
   function drawDoubleBossIcon() {
@@ -229,7 +263,8 @@
         }
       }
     };
-    draw(bossMaleSprite, 10); draw(bossFemaleSprite, 74);
+    draw(bossMaleSprite, 10);
+    draw(bossFemaleSprite, 74);
   }
 
   // --- UI表示の制御 (Orderでレイアウトの重なりを完璧に制御) ---
@@ -466,7 +501,8 @@
         if (frame % 20 < 10) { ctx.fillStyle = 'rgba(52, 152, 219, 0.4)'; ctx.beginPath(); ctx.arc(this.x + this.width / 2, this.y + this.height / 2, this.width, 0, Math.PI * 2); ctx.fill(); }
         this.drawSprite(jobChangeSprite); ctx.fillStyle = '#ecf0f1'; ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('転職', this.x + this.width / 2, this.y + this.height / 2 + 4); ctx.textAlign = 'left';
       }
-      else if (this.type === 'fireball') { this.drawSprite(fireballSprite); ctx.fillStyle = '#000000'; ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('激務', this.x + this.width * 0.65, this.y + this.height / 2 + 4); ctx.textAlign = 'left'; }
+      // ★ 火の玉の中心（0.72）に激務の文字を配置
+      else if (this.type === 'fireball') { this.drawSprite(fireballSprite); ctx.fillStyle = '#000000'; ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('激務', this.x + this.width * 0.72, this.y + this.height / 2 + 3); ctx.textAlign = 'left'; }
       else if (this.type === 'home') this.drawSprite(homeSprite); 
     }
     
@@ -650,7 +686,7 @@
       score = 0; hp = 3.0; ammo = 0; gameSpeed = baseGameSpeed; targetFrames = 7200; 
     } else { 
       targetFrames = 14400; // コンティニュー後は4分
-      gameSpeed = savedGameSpeed; // ★ コンティニュー時に前のスピードを復元
+      gameSpeed = savedGameSpeed; // ★ コンティニュー時に前のスピードを完全に復元
     } 
     frame = 0; playTimeFrames = 0; endingPhase = 0;
     spawnTimerGround = 150; spawnTimerAir = 250; entities.length = 0; projectiles.length = 0; platforms.length = 0;
@@ -658,6 +694,7 @@
     player.y = groundY - pigHeight; player.dy = 0; player.isJumping = false; player.jobChangeTimer = 0; player.maxJumps = 1; player.opacity = 1.0; player.x = 60;
     player.invincibleTimer = 0; // ★ 無敵の確実なリセット
     popupTimer = 0; sysPopupTimer = 0;
+    document.getElementById('center-ui').style.display = 'none';
   }
 
   function startGame(isContinue = false) {
@@ -792,7 +829,7 @@
       document.getElementById('password-gate').style.display = 'none';
       gameState = 'start';
       resetGame(false); // ★ 念のためリセットを確実に行う
-      showStartUI(); // パスワード突破で初めてSTARTボタン表示
+      showStartUI(); // パスワード突破で初めてSTARTボタン等を表示
     } else {
       document.getElementById('pw-error').style.display = 'block';
     }
@@ -843,6 +880,9 @@
   btnCloseHowTo.addEventListener('click', closeModal); btnCloseHowTo.addEventListener('touchstart', closeModal, {passive: false});
 
   window.addEventListener('DOMContentLoaded', () => {
+    // 操作アイコン等
+    drawIcon('icon-pig', pigSprite, 'pig', 40, 40, 1.2);
+    
     // アイコンのサイズ倍率を 0.85 にして綺麗に収める
     drawIcon('icon-heal', heartSprite, 'heal', 40, 40, 0.85);
     drawIcon('icon-acorn', acornSprite, 'acorn', 40, 40, 0.85); 
@@ -861,3 +901,4 @@
 </script>
 </body>
 </html>
+
