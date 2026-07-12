@@ -4,21 +4,17 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-<!-- ★ キャッシュ無効化（ブラウザに常に最新版を読ませる） -->
+<!-- ★ キャッシュ無効化 -->
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 
 <title>走れ！ネガティ豚 -オフィス街サバイバル-</title>
 <style>
-  body { margin: 0; padding: 0; background-color: #111; font-family: 'Helvetica Neue', Arial, sans-serif; touch-action: none; overflow: hidden; }
-  #game-wrapper { position: relative; width: 100vw; height: 100vh; max-width: 800px; margin: 0 auto; background-color: #000; }
+  html, body { width: 100%; height: 100%; height: 100dvh; margin: 0; padding: 0; overflow: hidden; background-color: #111; font-family: 'Helvetica Neue', Arial, sans-serif; touch-action: none; }
+  #game-wrapper { position: relative; width: 100%; height: 100%; max-width: 800px; margin: 0 auto; background-color: #000; overflow: hidden; }
+  #gameCanvas { display: block; width: 100%; height: 100%; }
   
-  /* ★ 修正：LINEブラウザ対策はメインのゲーム画面(#gameCanvas)だけに適用する */
-  canvas { display: block; width: 100%; height: 100%; }
-  #gameCanvas { min-height: 100vh; }
-  
-  /* パスコード入力画面 */
   #password-gate { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #111; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; color: white; }
   #pw-title { color: #f1c40f; font-size: 24px; font-weight: bold; margin-bottom: 20px; text-shadow: 2px 2px 0 #000; }
   #pw-input { padding: 15px; font-size: 28px; border-radius: 8px; border: 3px solid #3498db; text-align: center; width: 120px; letter-spacing: 5px; margin-bottom: 20px; background: #2c3e50; color: #fff; font-weight: bold; outline: none; }
@@ -26,56 +22,48 @@
   #btn-unlock:active { transform: translateY(4px); box-shadow: none; }
   #pw-error { color: #e74c3c; font-weight: bold; margin-top: 20px; font-size: 16px; display: none; }
 
-  /* UI全体を統括するコンテナ */
-  #center-ui { position: absolute; top: 45%; left: 50%; transform: translate(-50%, -50%); z-index: 20; display: flex; flex-direction: column; align-items: center; width: 100%; pointer-events: none; }
-  
-  /* 各UIパーツ (初期は非表示) */
+  #center-ui { position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%); z-index: 20; display: flex; flex-direction: column; align-items: center; width: 100%; pointer-events: none; }
   #ui-title { display: none; color: white; font-size: 32px; font-weight: bold; margin-bottom: 10px; text-shadow: 2px 2px 0 #000; text-align: center; }
   #ui-score { display: none; color: #f1c40f; font-size: 24px; font-weight: bold; margin-bottom: 25px; text-shadow: 2px 2px 0 #000; text-align: center; }
 
-  #btn-main { display: none; background-color: #f1c40f; color: #2c3e50; border: 4px solid #f39c12; padding: 15px 40px; font-size: 28px; font-weight: bold; border-radius: 12px; box-shadow: 0 6px 0 rgba(0,0,0,0.5); cursor: pointer; user-select: none; transition: transform 0.1s, box-shadow 0.1s; min-width: 180px; text-align: center; pointer-events: auto; margin-bottom: 15px; }
+  rt { font-size: 0.5em; font-weight: normal; }
+  #btn-main rt { color: #2c3e50; }
+  #btn-quit rt { color: #fff; }
+
+  #btn-main { display: none; background-color: #f1c40f; color: #2c3e50; border: 4px solid #f39c12; padding: 10px 40px; font-size: 28px; font-weight: bold; border-radius: 12px; box-shadow: 0 6px 0 rgba(0,0,0,0.5); cursor: pointer; user-select: none; transition: transform 0.1s, box-shadow 0.1s; min-width: 180px; text-align: center; pointer-events: auto; margin-bottom: 15px; }
   #btn-main:active { transform: translateY(6px); box-shadow: none; }
   
-  #btn-quit { display: none; background-color: #e74c3c; color: white; border: 3px solid #c0392b; padding: 12px 30px; font-size: 20px; font-weight: bold; border-radius: 12px; cursor: pointer; margin-bottom: 15px; box-shadow: 0 4px 0 rgba(0,0,0,0.5); text-align: center; pointer-events: auto; }
+  #btn-quit { display: none; background-color: #e74c3c; color: white; border: 3px solid #c0392b; padding: 8px 30px; font-size: 20px; font-weight: bold; border-radius: 12px; cursor: pointer; margin-bottom: 15px; box-shadow: 0 4px 0 rgba(0,0,0,0.5); text-align: center; pointer-events: auto; }
   #btn-quit:active { transform: translateY(4px); box-shadow: none; }
 
   #btn-how-to { display: none; background-color: #3498db; color: white; border: 3px solid #2980b9; padding: 10px 30px; font-size: 18px; font-weight: bold; border-radius: 8px; cursor: pointer; box-shadow: 0 4px 0 rgba(0,0,0,0.5); pointer-events: auto; margin-bottom: 15px; }
   #btn-how-to:active { transform: translateY(4px); box-shadow: none; }
 
-  /* プレイ画面HUD用 説明テキスト (遊び方起動時のみ表示) */
-  #hud-explanations { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 101; }
-  .hud-exp-item { position: absolute; color: #f1c40f; font-size: 11px; font-weight: bold; text-shadow: 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000; white-space: nowrap; }
-
-  /* 遊び方モーダル */
-  #how-to-modal { display: none; position: absolute; top: 54%; left: 50%; transform: translate(-50%, -50%); width: 95%; max-width: 450px; background: rgba(44, 62, 80, 0.95); color: white; z-index: 100; border-radius: 12px; padding: 20px; box-sizing: border-box; border: 4px solid #f1c40f; box-shadow: 0 10px 20px rgba(0,0,0,0.5); pointer-events: auto; }
-  #how-to-modal h2 { text-align: center; color: #f1c40f; margin-top: 0; margin-bottom: 12px; font-size: 20px; }
+  #how-to-modal { display: none; position: absolute; top: 32%; left: 50%; transform: translate(-50%, -50%); width: 95%; max-width: 450px; background: rgba(44, 62, 80, 0.95); color: white; z-index: 100; border-radius: 12px; padding: 15px; box-sizing: border-box; border: 4px solid #f1c40f; box-shadow: 0 10px 20px rgba(0,0,0,0.5); pointer-events: auto; }
+  #how-to-modal h2 { text-align: center; color: #f1c40f; margin-top: 0; margin-bottom: 10px; font-size: 20px; }
   
-  .how-to-list { list-style: none; padding: 0; margin: 0; font-size: 13px; line-height: 1.4; max-height: 48vh; overflow-y: auto;}
+  .how-to-list { list-style: none; padding: 0; margin: 0; font-size: 12px; line-height: 1.4; max-height: 38vh; overflow-y: auto;}
   .how-to-list li { display: flex; align-items: center; margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 12px; }
   
-  .icon-container { width: 40px; flex-shrink: 0; margin-right: 12px; display: flex; justify-content: center; align-items: center; }
-  .icon-container-wide { width: 70px; flex-shrink: 0; margin-right: 12px; display: flex; justify-content: center; align-items: center; }
+  .icon-container { width: 40px; flex-shrink: 0; margin-right: 10px; display: flex; justify-content: center; align-items: center; }
+  .icon-container-wide { width: 70px; flex-shrink: 0; margin-right: 10px; display: flex; justify-content: center; align-items: center; }
   .how-to-text { flex-grow: 1; word-wrap: break-word; color: #ecf0f1; }
-  .how-to-text strong { font-size: 15px; color: #f1c40f; display: block; margin-bottom: 2px;}
+  .how-to-text strong { font-size: 14px; color: #f1c40f; display: block; margin-bottom: 2px;}
   
-  .close-btn { background: #e74c3c; color: white; border: none; padding: 10px 30px; font-size: 18px; border-radius: 8px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 0 #c0392b; display: block; margin: 15px auto 0; }
+  .close-btn { background: #e74c3c; color: white; border: none; padding: 8px 30px; font-size: 18px; border-radius: 8px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 0 #c0392b; display: block; margin: 10px auto 0; }
   .close-btn:active { transform: translateY(4px); box-shadow: none; }
 
-  /* 遊び方内のUIボタン再現用スタイル */
-  .demo-btn-jump { background-color: #2ed573; color: white; border: 2px solid #27ae60; border-radius: 50%; width: 36px; height: 36px; font-size: 10px; font-weight: bold; display: flex; justify-content: center; align-items: center; box-shadow: 0 2px 0 rgba(0,0,0,0.4); }
-  .demo-btn-attack { background-color: #ff4757; color: white; border: 2px solid #c0392b; border-radius: 50%; width: 36px; height: 36px; font-size: 9px; font-weight: bold; display: flex; justify-content: center; align-items: center; box-shadow: 0 2px 0 rgba(0,0,0,0.4); }
-
-  /* コントローラー */
-  #controls { position: absolute; bottom: 80px; left: 0; width: 100%; display: flex; justify-content: space-between; padding: 0 30px; box-sizing: border-box; pointer-events: none; }
-  .btn { width: 80px; height: 80px; border-radius: 50%; font-size: 16px; font-weight: bold; display: flex; justify-content: center; align-items: center; user-select: none; pointer-events: auto; opacity: 0.85; box-shadow: 0 4px 0 rgba(0,0,0,0.4); }
+  /* ★ 全体を下にシフト（bottom: 50px）させ空間を確保 */
+  #controls { position: absolute; bottom: max(50px, env(safe-area-inset-bottom)); left: 0; width: 100%; display: flex; justify-content: space-between; padding: 0 20px; box-sizing: border-box; pointer-events: none; }
+  .btn { width: 70px; height: 70px; border-radius: 50%; font-size: 14px; font-weight: bold; display: flex; justify-content: center; align-items: center; user-select: none; pointer-events: auto; opacity: 0.85; box-shadow: 0 4px 0 rgba(0,0,0,0.4); transition: transform 0.1s, box-shadow 0.1s; }
   .btn:active { transform: translateY(4px); box-shadow: none; opacity: 1; }
-  #btn-attack { background-color: #ff4757; color: white; border: 3px solid #c0392b; }
-  #btn-jump { background-color: #2ed573; color: white; border: 3px solid #27ae60; width: 90px; height: 90px; margin-top: -10px; }
+  
+  #btn-attack { background-color: #3498db; color: white; border: 3px solid #2980b9; }
+  #btn-jump { background-color: #2ed573; color: white; border: 3px solid #27ae60; width: 75px; height: 75px; margin-top: -5px; }
 </style>
 </head>
 <body>
 
-<!-- パスコード画面 -->
 <div id="password-gate">
   <div id="pw-title">SYSTEM LOGIN</div>
   <input type="password" id="pw-input" inputmode="numeric" maxlength="4" placeholder="****">
@@ -85,19 +73,12 @@
 
 <div id="game-wrapper">
   <canvas id="gameCanvas"></canvas>
-  
-  <!-- プレイ画面HUDの説明テキスト -->
-  <div id="hud-explanations">
-    <div class="hud-exp-item" style="top: 16px; left: 100px;">（現在のスコア。勤労(はし)り続けた命の代価だ！）</div>
-    <div class="hud-exp-item" style="top: 51px; left: 175px;">（ゼロになると過労で倒れるので注意だ！）</div>
-    <div class="hud-exp-item" style="top: 80px; left: 165px;">（最大3発まで貯められる願いの弾丸だ！）</div>
-  </div>
 
   <div id="center-ui">
     <div id="ui-title"></div>
     <div id="ui-score"></div>
-    <div id="btn-main">START</div>
-    <div id="btn-quit">QUIT GAME</div>
+    <div id="btn-main"></div>
+    <div id="btn-quit"></div>
     <div id="btn-how-to">遊び方</div>
   </div>
 
@@ -106,14 +87,15 @@
     <ul class="how-to-list">
       <li>
         <div class="icon-container"><canvas id="icon-pig" style="width:40px; height:40px;"></canvas></div>
-        <div class="how-to-text"><strong>ネガティぶた</strong>社畜のサラリーマン。業務過多の毎日でもめげずに働いている。</div>
+        <!-- ★ テキスト追加 -->
+        <div class="how-to-text"><strong>ネガティぶた</strong>社畜のサラリーマン。業務過多の毎日でもめげずに働いている。<br>基本的に着地前なら1回ジャンプできる(着地前ならオナラで跳べるぞ。)</div>
       </li>
       <li>
-        <div class="icon-container"><div class="demo-btn-jump">JUMP</div></div>
+        <div class="icon-container"><canvas id="icon-jump" style="width:40px; height:40px;"></canvas></div>
         <div class="how-to-text"><strong>ジャンプボタン</strong>右下のボタンを押すと、ネガティぶたがジャンプする。踏むと倒せるテキがいるよ。</div>
       </li>
       <li>
-        <div class="icon-container"><div class="demo-btn-attack">退職願</div></div>
+        <div class="icon-container"><canvas id="icon-attack" style="width:40px; height:40px;"></canvas></div>
         <div class="how-to-text"><strong>退職願</strong>左下のボタンを押すと、退職願を前方に飛ばすことができる。願いをぶつけると、倒せるテキがいるよ。上司を踏んで願いを集めよう。</div>
       </li>
       <li>
@@ -159,12 +141,11 @@
 </div>
 
 <script>
-  // ★ LINE等での戻る/進むキャッシュ表示を防ぐ
-  if (window.performance && window.performance.navigation.type === window.performance.navigation.TYPE_BACK_FORWARD) {
-    window.location.reload(true);
-  }
+  try {
+    window.addEventListener('pageshow', (event) => { if (event.persisted) { window.location.reload(); } });
+    if (window.performance && window.performance.navigation) { if (window.performance.navigation.type === 2) { window.location.reload(true); } }
+  } catch(e) {}
 
-  // --- 色パレットとスプライト変換 ---
   const colors = [ null, '#ffb6c1', '#000000', '#ff69b4', '#7f8c8d', '#ffffff', '#e74c3c', '#2c3e50', '#f1c40f', '#bdc3c7', '#87ceeb', '#2ecc71', '#c0392b', '#8B4513', '#D2B48C', '#1a252f', '#8e44ad', '#3498db', '#e67e22', '#fae5d3', '#e67e22', '#f39c12' ];
   function strToSprite(strArray) {
     const map = { '0':0, '1':1, '2':2, '3':3, '4':4, '5':5, '6':6, '7':7, '8':8, '9':9, 'A':10, 'B':11, 'C':12, 'D':13, 'E':14, 'F':15, 'G':16, 'H':17, 'I':18, 'J':19, 'K':20, 'L':21 };
@@ -182,7 +163,6 @@
   const homeSprite = strToSprite([
     "000000000000000DDDDD000000000000000", "0000000000000DDDDDDD000000000000000", "000000000000DDDDDDDDD00000000000000", "00000000000DDDDDDDDDDD0000000000000", "0000000000DDDDDDDDDDDDD000000000000", "000000000DDDDDDDDDDDDDDD00000000000", "00000000DDDDDDDDDDDDDDDDD0000000000", "0000000DDDDDDDDDDDDDDDDDDD000000000", "000000DDDDDDDDDDDDDDDDDDDDD00000000", "00000DDDDDDDDDDDDDDDDDDDDDDD0000000", "0000DDDDDDDDDDDDDDDDDDDDDDDDD000000", "000DDDDDDDDDDDDDDDDDDDDDDDDDDD00000", "00DDDDDDDDDDDDDDDDDDDDDDDDDDDDD0000", "0DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD000", "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD00", "02222222222222222222222222222222000", "02333333333333333333333333333332000", "023D33D333D333D3D333D333D333D332000", "02333333333333333333333333333332000", "02333333332222222222233333333332000", "0233333332FFFFFFFFFFF23333333332000", "0233338882FFFFFFFFFFF28883333332000", "0233338882FFFFFFFFFFF28883333332000", "0233333332FFFFFFFFFFF23333333332000", "0233333332FFFFFFFFFFF23333333332000", "0233333332FFFFFFFFFFF23333333332000", "0233333332FFFFFFFFFFF23333333332000", "02222222222222222222222222222222000", "EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE00", "0EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE000"
   ]);
-  
   const trainIconSprite = strToSprite([ "00000000000000000000000000000000", "02222222222222222222222222222220", "29999999999999999999999999999992", "29999999999999999999999999999992", "29922222299222222992222229999992", "2992AAAA2992AAAA2992AAAA29992292", "2992AAAA2992AAAA2992AAAA29992292", "2992AAAA2992AAAA2992AAAA29992292", "29922222299222222992222229999992", "29999999999999999999999999999992", "2BBBBBBBBBBBBBBBBBBBBBBBBBBBBBB2", "2BBBBBBBBBBBBBBBBBBBBBBBBBBBBBB2", "29999999999999999999999999999992", "29992299999992299999992299999992", "29992299999992299999992299999992", "29999999999999999999999999999992", "02222222222222222222222222222220", "00022002200000220022000002200220", "00022002200000220022000002200220", "00000000000000000000000000000000" ]);
   const clockIconSprite = strToSprite([ "000000002222222200000000", "000000225555555522000000", "000022555555555555220000", "000255555555555555552000", "002555555555555555555200", "025555555552255555555520", "025555555552255555555520", "255555555552255555555552", "255555555552255555555552", "255555555552255555555552", "255555555552255555555552", "255555555552255555555552", "255555555552222222225552", "255555555555555555555552", "255555555555555555555552", "255555555555555555555552", "255555555555555555555552", "025555555555555555555520", "025555555555555555555520", "002555555555555555555200", "000255555555555555552000", "000022555555555555220000", "000000225555555522000000", "000000002222222200000000" ]);
 
@@ -214,7 +194,28 @@
   }
   const trainSprite = generateTrain();
 
-  // --- アイコン描画処理 ---
+  // ★ 弾・UI用の封筒アイコン
+  function drawEnvelope(ctx, x, y, width, height, isActive) {
+    ctx.save();
+    ctx.fillStyle = isActive ? '#ffffff' : '#888888';
+    ctx.fillRect(x, y, width, height);
+    ctx.strokeStyle = '#000000';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(x, y, width, height);
+    
+    ctx.beginPath();
+    ctx.moveTo(x, y); ctx.lineTo(x + width/2, y + height/2); ctx.lineTo(x + width, y);
+    ctx.stroke();
+
+    if (isActive) {
+      ctx.fillStyle = '#3498db';
+      ctx.font = 'bold ' + Math.floor(height * 0.8) + 'px sans-serif';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText('ネ', x + width / 2, y + height / 2 + 1);
+    }
+    ctx.restore();
+  }
+
   function drawIcon(id, sprite, type='', cWidth=40, cHeight=40, scaleMultiplier=1) {
     const c = document.getElementById(id); if (!c) return;
     c.width = cWidth * 2; c.height = cHeight * 2; 
@@ -222,14 +223,12 @@
     const ctx = c.getContext('2d');
     
     const rows = sprite.length; const cols = sprite[0].length;
-    const maxSize = Math.max(rows, cols);
     let scale = Math.floor(Math.max(1, Math.min(c.width/cols, c.height/rows)) * scaleMultiplier);
-    
     const offsetX = Math.floor((c.width - cols * scale) / 2);
     const offsetY = Math.floor((c.height - rows * scale) / 2);
 
     if (type === 'acorn') {
-      ctx.save(); ctx.globalAlpha = 0.3; let glowSize = scale * 1.5;
+      ctx.save(); ctx.globalAlpha = 0.4; let glowSize = scale * 1.5;
       let hOffsetX = offsetX + Math.floor((cols*scale - heartSprite[0].length*glowSize)/2);
       let hOffsetY = offsetY + Math.floor((rows*scale - heartSprite.length*glowSize)/2);
       for (let r=0; r<heartSprite.length; r++) {
@@ -255,22 +254,25 @@
 
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     const fs = Math.max(10, scale * 6);
-    if (type === 'heal') { 
-        ctx.fillStyle='white'; ctx.font=`bold ${fs}px sans-serif`; 
-        ctx.fillText('有休', offsetX+cols*scale/2, offsetY+rows*scale/2+scale*2); 
-    }
-    else if (type === 'job') { 
-        ctx.fillStyle='#ecf0f1'; ctx.font=`bold ${fs}px sans-serif`; 
-        ctx.fillText('転職', offsetX+cols*scale/2, offsetY+rows*scale/2+scale*2); 
-    }
-    else if (type === 'mail') { 
-        ctx.fillStyle='#c0392b'; ctx.font=`bold ${fs}px sans-serif`; 
-        ctx.fillText('至急', offsetX+cols*scale/2, offsetY+rows*scale/2+scale*2); 
-    }
+    if (type === 'heal') { ctx.fillStyle='white'; ctx.font=`bold ${fs}px sans-serif`; ctx.fillText('有休', offsetX+cols*scale/2, offsetY+rows*scale/2+scale*2); }
+    else if (type === 'job') { ctx.fillStyle='#ecf0f1'; ctx.font=`bold ${fs}px sans-serif`; ctx.fillText('転職', offsetX+cols*scale/2, offsetY+rows*scale/2+scale*2); }
+    else if (type === 'mail') { ctx.fillStyle='#c0392b'; ctx.font=`bold ${fs}px sans-serif`; ctx.fillText('至急', offsetX+cols*scale/2, offsetY+rows*scale/2+scale*2); }
     else if (type === 'fire') { 
-        ctx.fillStyle='#000000'; ctx.font=`bold ${fs}px sans-serif`; 
-        ctx.fillText('激務', offsetX + cols * scale * 0.72, offsetY + rows * scale / 2 + scale * 1.5); 
+      ctx.fillStyle='#000000'; ctx.font=`bold ${Math.floor(scale*7)}px sans-serif`; 
+      ctx.fillText('激務', offsetX + scale * 8, offsetY + scale * 8); 
     }
+  }
+
+  function drawCircleBtn(id, text, bgColor, borderColor) {
+    const c = document.getElementById(id); if(!c) return;
+    c.width = 80; c.height = 80; c.style.width = '40px'; c.style.height = '40px';
+    const ctx = c.getContext('2d');
+    ctx.beginPath(); ctx.arc(40, 40, 36, 0, Math.PI*2);
+    ctx.fillStyle = bgColor; ctx.fill();
+    ctx.lineWidth = 4; ctx.strokeStyle = borderColor; ctx.stroke();
+    ctx.fillStyle = 'white'; ctx.font = 'bold 18px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    if (text === '退職願') { ctx.font = 'bold 13px sans-serif'; } 
+    ctx.fillText(text, 40, 40);
   }
 
   function drawDoubleBossIcon() {
@@ -285,15 +287,14 @@
         }
       }
     };
-    draw(bossMaleSprite, 10);
-    draw(bossFemaleSprite, 74);
+    draw(bossMaleSprite, 10); draw(bossFemaleSprite, 74);
   }
 
-  // --- UI表示の制御 ---
+  // ★ ルビの完全英語化
   function showStartUI() {
     document.getElementById('ui-title').style.display = 'none';
     document.getElementById('ui-score').style.display = 'none';
-    document.getElementById('btn-main').innerText = 'START';
+    document.getElementById('btn-main').innerHTML = '<ruby>勤務開始<rt>START</rt></ruby>';
     document.getElementById('btn-main').style.display = 'block';
     document.getElementById('btn-main').style.order = 1;
     document.getElementById('btn-how-to').style.display = 'block';
@@ -309,7 +310,7 @@
     document.getElementById('ui-score').innerText = '最終報酬: ' + score + ' pt';
     document.getElementById('ui-score').style.display = 'block';
     document.getElementById('ui-score').style.order = 2;
-    document.getElementById('btn-main').innerText = 'RETRY';
+    document.getElementById('btn-main').innerHTML = '<ruby>残業延長？<rt>RETRY</rt></ruby>';
     document.getElementById('btn-main').style.display = 'block';
     document.getElementById('btn-main').style.order = 3;
     document.getElementById('btn-how-to').style.display = 'block';
@@ -320,9 +321,10 @@
 
   function showContinueUI() {
     document.getElementById('ui-title').style.display = 'none';
-    document.getElementById('btn-main').innerText = 'Continue?';
+    document.getElementById('btn-main').innerHTML = '<ruby>残業延長？<rt>CONTINUE?</rt></ruby>';
     document.getElementById('btn-main').style.display = 'block';
     document.getElementById('btn-main').style.order = 1;
+    document.getElementById('btn-quit').innerHTML = '<ruby>退職？<rt>QUIT GAME</rt></ruby>';
     document.getElementById('btn-quit').style.display = 'block';
     document.getElementById('btn-quit').style.order = 2;
     document.getElementById('ui-score').innerText = '現在の報酬: ' + score + ' pt';
@@ -332,7 +334,6 @@
     document.getElementById('center-ui').style.display = 'flex';
   }
 
-  // --- 音声エンジン ---
   const AudioContext = window.AudioContext || window.webkitAudioContext;
   let audioCtx;
   function initAudio() {
@@ -370,38 +371,81 @@
     }
   }
 
-  // --- ゲームシステム ---
   const canvas = document.getElementById('gameCanvas'); const ctx = canvas.getContext('2d');
-  function resize() { canvas.width = window.innerWidth > 800 ? 800 : window.innerWidth; canvas.height = window.innerHeight; }
-  window.addEventListener('resize', resize); resize();
+  
+  let groundY = 0; 
+  let currentWidth = 0;
+  let currentHeight = 0;
 
-  let gameState = 'start'; 
+  function resize() { 
+    let w = window.innerWidth;
+    let h = window.innerHeight;
+    if (w > 800) w = 800;
+    if (h < 200) return; 
+
+    if (canvas.width !== w || canvas.height !== h) {
+      canvas.width = w; 
+      canvas.height = h; 
+      groundY = h - 210; 
+    }
+  }
+  window.addEventListener('resize', resize); 
+
+  let gameState = 'password'; 
   let score = 0; let frame = 0; let playTimeFrames = 0; 
   let baseGameSpeed = 3.5; let gameSpeed = baseGameSpeed; let savedGameSpeed = baseGameSpeed;
-  let hp = 3.0; 
-  let ammo = 0; let bgOffset = 0;
+  let hp = 3.0; let ammo = 0; let bgOffset = 0;
   let spawnTimerGround = 0; let spawnTimerAir = 0;
   let popupText1 = ""; let popupText2 = ""; let popupTimer = 0; let popupY = 0;
   let sysPopupText = ""; let sysPopupSubText = ""; let sysPopupTimer = 0; let sysPopupY = 0;
+  let isHowToOpen = false;
 
-  let targetFrames = 7200; 
-  let endingTimer = 0; 
+  let targetFrames = 7200; let endingTimer = 0; let loopCount = 0;
 
-  const groundY = canvas.height - 180;
   const pigPixelSize = 1.6; 
   const pigWidth = 29 * pigPixelSize; const pigHeight = 25 * pigPixelSize; 
 
-  const player = {
-    x: 60, y: groundY - pigHeight, width: pigWidth - 6, height: pigHeight - 2, 
-    dy: 0, gravity: 0.55, jumpPower: -12.0, isJumping: false, invincibleTimer: 0,
-    jobChangeTimer: 0, maxJumps: 1, jumpCount: 0, opacity: 1.0,
+  // ★ クリーム色のオナラエフェクト
+  const particles = [];
+  class FartEffect {
+    constructor(x, y) { 
+      this.x = x; this.y = y; 
+      this.life = 15; this.maxLife = 15; 
+      this.vx = (Math.random() - 0.5) * 1.5;
+      this.vy = Math.random() * 1.5 + 1;
+      this.size = Math.random() * 4 + 3;
+    }
+    update() { 
+      this.x += this.vx; this.y += this.vy; 
+      this.size += 0.5;
+      this.life--; 
+    }
+    draw() {
+      ctx.save(); 
+      ctx.globalAlpha = this.life / this.maxLife;
+      ctx.fillStyle = '#FFFACD'; // LemonChiffon (クリーム色)
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+  }
+  function updateAndDrawParticles() {
+    for (let i = particles.length - 1; i >= 0; i--) {
+      particles[i].update(); particles[i].draw();
+      if (particles[i].life <= 0) particles.splice(i, 1);
+    }
+  }
 
+  const player = {
+    x: 60, y: 0, width: pigWidth - 6, height: pigHeight - 2, 
+    dy: 0, gravity: 0.55, jumpPower: -12.0, isJumping: false, invincibleTimer: 0,
+    jobChangeTimer: 0, maxJumps: 1, jumpCount: 0, opacity: 1.0, onGround: false,
     draw() {
       if (this.jobChangeTimer > 0 && frame % 20 < 10) {
         ctx.fillStyle = 'rgba(52, 152, 219, 0.4)'; ctx.beginPath(); ctx.arc(this.x + this.width / 2, this.y + this.height / 2, this.width * 0.8, 0, Math.PI * 2); ctx.fill();
       }
       if (this.invincibleTimer > 0 && Math.floor(this.invincibleTimer / 5) % 2 === 0) return;
-      
       ctx.save(); ctx.globalAlpha = this.opacity;
       for (let row = 0; row < pigSprite.length; row++) {
         for (let col = 0; col < pigSprite[row].length; col++) {
@@ -413,7 +457,6 @@
     update() {
       if (this.jobChangeTimer > 0) { this.jobChangeTimer--; if (this.jobChangeTimer <= 0) this.maxJumps = 1; }
       if (this.invincibleTimer > 0) this.invincibleTimer--;
-      
       this.dy += this.gravity; this.y += this.dy;
 
       let grounded = false;
@@ -423,19 +466,25 @@
         }
       }
       if (this.y >= groundY - this.height) { this.y = groundY - this.height; this.dy = 0; grounded = true; this.isJumping = false; this.jumpCount = 0; }
+      this.onGround = grounded;
       this.draw();
     },
-    jump() { if (this.jumpCount < this.maxJumps) { this.dy = this.jumpPower; this.isJumping = true; this.jumpCount++; playSound('jump'); } },
-    bounce() { this.dy = this.jumpPower * 0.7; this.isJumping = true; this.jumpCount = 1; },
+    jump() { 
+      if (this.jumpCount < this.maxJumps) { 
+        // ★ 空中ジャンプ（2段ジャンプ等）の時だけオナラを出す
+        if (!this.onGround) { 
+          for(let i=0; i<4; i++) particles.push(new FartEffect(this.x + this.width/2 - 5 + Math.random()*10, this.y + this.height - Math.random()*5)); 
+        }
+        this.dy = this.jumpPower; this.isJumping = true; this.jumpCount++; this.onGround = false; playSound('jump'); 
+      } 
+    },
+    bounce() { this.dy = this.jumpPower * 0.7; this.isJumping = true; this.jumpCount = 1; this.onGround = false; },
     hit(damage = 1.0) {
       if (this.invincibleTimer <= 0) {
         if (this.jobChangeTimer > 0) { this.jobChangeTimer = 0; this.maxJumps = 1; this.invincibleTimer = 60; playSound('damage');
         } else {
           hp -= damage; this.invincibleTimer = 60; playSound('damage'); 
-          if (hp <= 0) {
-            playSound('gameover'); gameState = 'gameover';
-            showGameoverUI();
-          }
+          if (hp <= 0) { playSound('gameover'); gameState = 'gameover'; showGameoverUI(); }
         }
       }
     }
@@ -443,12 +492,8 @@
 
   const projectiles = [];
   class Projectile {
-    constructor() { this.x = player.x + player.width; this.y = player.y + player.height / 2; this.width = 24; this.height = 14; this.speed = 8; }
-    draw() {
-      ctx.fillStyle = 'white'; ctx.fillRect(this.x, this.y, this.width, this.height);
-      ctx.fillStyle = 'black'; ctx.fillRect(this.x + 2, this.y + 2, this.width - 4, this.height - 4);
-      ctx.fillStyle = 'white'; ctx.font = '10px sans-serif'; ctx.fillText('願', this.x + 6, this.y + 11);
-    }
+    constructor() { this.x = player.x + player.width; this.y = player.y + player.height / 2; this.width = 24; this.height = 16; this.speed = 8; }
+    draw() { drawEnvelope(ctx, this.x, this.y, this.width, this.height, true); }
     update() { this.x += this.speed; this.draw(); }
   }
 
@@ -462,36 +507,24 @@
     update() { this.x -= gameSpeed; this.draw(); }
   }
 
-  const entities = [];
+  let entities = [];
   class Entity {
     constructor(type, yPos, platform = null) {
-      this.type = type; this.platform = platform; this.y = yPos; this.drawYOffset = 0; this.angle = Math.random() * Math.PI * 2; 
-
+      this.type = type; this.platform = platform; this.drawYOffset = 0; this.angle = Math.random() * Math.PI * 2; 
       if (type.startsWith('boss')) { this.width = 28 * pigPixelSize; this.height = 28 * pigPixelSize; this.isStompable = true; this.y = yPos - this.height; this.localVx = (Math.random() < 0.5 ? 1 : -1) * (type === 'boss_female' ? 1.0 : 0.7); 
       } else if (type.startsWith('train')) { this.tSize = 1.6; this.width = 96 * this.tSize * (type === 'train_double' ? 2 : 1); this.height = 34 * this.tSize; this.y = groundY - this.height; this.isStompable = false; this.speedMulti = (type === 'train_double' ? 1.6 : 1.85); 
-      } else if (type === 'email') { this.width = 28 * pigPixelSize; this.height = 18 * pigPixelSize; this.isStompable = true;
+      } else if (type === 'email') { this.width = 28 * pigPixelSize; this.height = 18 * pigPixelSize; this.isStompable = true; this.y = yPos;
       } else if (type === 'item_heal') { this.width = 22 * pigPixelSize; this.height = 18 * pigPixelSize; this.y = yPos - this.height;
       } else if (type === 'item_acorn') { this.width = 18 * pigPixelSize; this.height = 18 * pigPixelSize; this.y = yPos - this.height;
       } else if (type === 'item_job_change') { this.width = 24 * pigPixelSize; this.height = 24 * pigPixelSize; this.y = yPos - this.height;
-      } else if (type === 'fireball') { this.width = 36 * pigPixelSize; this.height = 19 * pigPixelSize; this.isStompable = false; 
+      } else if (type === 'fireball') { this.width = 36 * pigPixelSize; this.height = 19 * pigPixelSize; this.isStompable = false; this.y = yPos;
       } else if (type === 'home') { this.width = 35 * pigPixelSize * 1.5; this.height = 30 * pigPixelSize * 1.5; this.y = groundY - this.height; this.isStompable = false; }
-
-      if (this.platform && type !== 'home') { this.localX = (this.platform.width - this.width) / 2; this.x = this.platform.x + this.localX; } 
-      else { this.x = canvas.width; }
+      if (this.platform && type !== 'home') { this.localX = (this.platform.width - this.width) / 2; this.x = this.platform.x + this.localX; } else { this.x = canvas.width; }
     }
-    
     drawSprite(sprite, pSize=pigPixelSize, offsetX = 0) {
-      let drawY = this.y + this.drawYOffset;
-      let drawSize = (this.type === 'home') ? pSize * 1.5 : pSize;
-      for (let row = 0; row < sprite.length; row++) {
-        for (let col = 0; col < sprite[row].length; col++) {
-          if (sprite[row][col] !== 0) {
-            ctx.fillStyle = colors[sprite[row][col]]; ctx.fillRect(this.x + offsetX + col * drawSize, drawY + row * drawSize, drawSize, drawSize);
-          }
-        }
-      }
+      let drawY = this.y + this.drawYOffset; let drawSize = (this.type === 'home') ? pSize * 1.5 : pSize;
+      for (let row = 0; row < sprite.length; row++) { for (let col = 0; col < sprite[row].length; col++) { if (sprite[row][col] !== 0) { ctx.fillStyle = colors[sprite[row][col]]; ctx.fillRect(this.x + offsetX + col * drawSize, drawY + row * drawSize, drawSize, drawSize); } } }
     }
-    
     draw() {
       if (this.type === 'boss_male') this.drawSprite(bossMaleSprite);
       else if (this.type === 'boss_female') this.drawSprite(bossFemaleSprite);
@@ -500,7 +533,7 @@
       else if (this.type === 'item_heal') { this.drawSprite(heartSprite); ctx.fillStyle = 'white'; ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('有休', this.x + this.width / 2, this.y + this.height / 2 + 4); ctx.textAlign = 'left'; }
       else if (this.type === 'item_acorn') {
         if (frame % 20 < 10) {
-          ctx.save(); ctx.globalAlpha = 0.3; let glowSize = pigPixelSize * 1.5; let hOffsetX = (this.width - 22 * glowSize) / 2; let hOffsetY = (this.height - 18 * glowSize) / 2; let drawY = this.y + this.drawYOffset + hOffsetY;
+          ctx.save(); ctx.globalAlpha = 0.5; let glowSize = pigPixelSize * 1.5; let hOffsetX = (this.width - 22 * glowSize) / 2; let hOffsetY = (this.height - 18 * glowSize) / 2; let drawY = this.y + this.drawYOffset + hOffsetY;
           for (let row = 0; row < heartSprite.length; row++) { for (let col = 0; col < heartSprite[row].length; col++) { if (heartSprite[row][col] !== 0) { ctx.fillStyle = colors[6]; ctx.fillRect(this.x + hOffsetX + col * glowSize, drawY + row * glowSize, glowSize, glowSize); } } } ctx.restore();
         }
         this.drawSprite(acornSprite);
@@ -509,10 +542,14 @@
         if (frame % 20 < 10) { ctx.fillStyle = 'rgba(52, 152, 219, 0.4)'; ctx.beginPath(); ctx.arc(this.x + this.width / 2, this.y + this.height / 2, this.width, 0, Math.PI * 2); ctx.fill(); }
         this.drawSprite(jobChangeSprite); ctx.fillStyle = '#ecf0f1'; ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('転職', this.x + this.width / 2, this.y + this.height / 2 + 4); ctx.textAlign = 'left';
       }
-      else if (this.type === 'fireball') { this.drawSprite(fireballSprite); ctx.fillStyle = '#000000'; ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('激務', this.x + this.width * 0.72, this.y + this.height / 2 + 3); ctx.textAlign = 'left'; }
+      else if (this.type === 'fireball') { 
+        this.drawSprite(fireballSprite); 
+        ctx.fillStyle = '#000000'; ctx.font = 'bold ' + Math.floor(pigPixelSize * 7) + 'px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText('激務', this.x + 8 * pigPixelSize, this.y + this.drawYOffset + 8 * pigPixelSize); 
+        ctx.textAlign = 'left'; 
+      }
       else if (this.type === 'home') this.drawSprite(homeSprite); 
     }
-    
     update() {
       if (this.type === 'home') this.x -= gameSpeed;
       else if (this.type.startsWith('train')) this.x -= gameSpeed * this.speedMulti;
@@ -600,27 +637,12 @@
   }
 
   const skyColorsRGB = [
-    [15,12,41, 48,43,99, 36,36,62],       // 0: 夜
-    [21,17,61, 58,43,112, 42,38,74],      
-    [34,23,82, 76,48,128, 53,41,92],      
-    [49,27,107, 98,53,150, 65,45,110],    
-    [68,31,128, 123,59,168, 79,48,122],   
-    [92,37,148, 153,64,186, 96,51,135],   
-    [120,45,153, 191,75,194, 117,57,156], 
-    [135,206,235, 224,246,255, 179,229,252] // 7: 朝
+    [15,12,41, 48,43,99, 36,36,62], [21,17,61, 58,43,112, 42,38,74], [34,23,82, 76,48,128, 53,41,92], [49,27,107, 98,53,150, 65,45,110],
+    [68,31,128, 123,59,168, 79,48,122], [92,37,148, 153,64,186, 96,51,135], [120,45,153, 191,75,194, 117,57,156], [135,206,235, 224,246,255, 179,229,252]
   ];
-
   function getSkyColors(progress) { 
-    const N = 8; const idx = progress * (N - 1);
-    const i1 = Math.floor(idx); const i2 = Math.min(Math.ceil(idx), N - 1);
-    const ratio = idx - i1;
-    const c1 = skyColorsRGB[i1]; const c2 = skyColorsRGB[i2];
-    const lerp = (a, b) => Math.round(a + (b - a) * ratio);
-    return [
-      `rgb(${lerp(c1[0], c2[0])},${lerp(c1[1], c2[1])},${lerp(c1[2], c2[2])})`,
-      `rgb(${lerp(c1[3], c2[3])},${lerp(c1[4], c2[4])},${lerp(c1[5], c2[5])})`,
-      `rgb(${lerp(c1[6], c2[6])},${lerp(c1[7], c2[7])},${lerp(c1[8], c2[8])})`
-    ];
+    const N = 8; const idx = progress * (N - 1); const i1 = Math.floor(idx); const i2 = Math.min(Math.ceil(idx), N - 1); const ratio = idx - i1; const c1 = skyColorsRGB[i1]; const c2 = skyColorsRGB[i2]; const lerp = (a, b) => Math.round(a + (b - a) * ratio);
+    return [ `rgb(${lerp(c1[0], c2[0])},${lerp(c1[1], c2[1])},${lerp(c1[2], c2[2])})`, `rgb(${lerp(c1[3], c2[3])},${lerp(c1[4], c2[4])},${lerp(c1[5], c2[5])})`, `rgb(${lerp(c1[6], c2[6])},${lerp(c1[7], c2[7])},${lerp(c1[8], c2[8])})` ];
   }
   function lerpColor(c1, c2, ratio) { return `rgb(${Math.round(c1[0]+(c2[0]-c1[0])*ratio)},${Math.round(c1[1]+(c2[1]-c1[1])*ratio)},${Math.round(c1[2]+(c2[2]-c1[2])*ratio)})`; }
 
@@ -628,105 +650,155 @@
     let timeProgress = 0; 
     if (gameState === 'start' || gameState === 'password') { timeProgress = 0.0; } 
     else {
-      let progress = playTimeFrames / targetFrames;
-      if (targetFrames === 7200) { timeProgress = progress; } 
-      else if (targetFrames === 14400) {
-        if (progress < 0.5) timeProgress = 1.0 - (progress * 2); // 朝 -> 夜
-        else timeProgress = (progress - 0.5) * 2; // 夜 -> 朝
-      } else { timeProgress = 1.0; } 
+      let progress = playTimeFrames / targetFrames; if (progress > 1.0) progress = 1.0;
+      if (loopCount % 2 === 0) { timeProgress = progress; } else { timeProgress = 1.0 - progress; }
     }
     
-    let currentSky = getSkyColors(timeProgress);
-    let grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+    let gradH = canvas.height > 0 ? canvas.height : 600;
+    let currentSky = getSkyColors(timeProgress); 
+    let grad = ctx.createLinearGradient(0, 0, 0, gradH);
     grad.addColorStop(0, currentSky[0]); grad.addColorStop(0.5, currentSky[1]); grad.addColorStop(1, currentSky[2]);
     ctx.fillStyle = grad; ctx.fillRect(0, 0, canvas.width, canvas.height);
     
     if (gameState === 'playing' || gameState === 'ending_run' || gameState === 'ending_home') bgOffset -= (gameSpeed * 0.3); 
     const buildingWidth = 60; if (bgOffset <= -buildingWidth * 10) bgOffset %= (buildingWidth * 10);
-
-    let isDay = timeProgress > 0.6; 
-    let bColor = lerpColor([26,26,46], [52,73,94], timeProgress); 
+    let isDay = timeProgress > 0.6; let bColor = lerpColor([26,26,46], [52,73,94], timeProgress); 
 
     for(let i = 0; i < Math.ceil(canvas.width / buildingWidth) + 2; i++) {
-       let absoluteIndex = Math.floor(Math.abs(bgOffset) / buildingWidth) + i;
-       let bx = (i * buildingWidth) + (bgOffset % buildingWidth);
-       let bh = 100 + (Math.abs(Math.sin(absoluteIndex * 12.34)) * 150); 
-       
+       let absoluteIndex = Math.floor(Math.abs(bgOffset) / buildingWidth) + i; let bx = (i * buildingWidth) + (bgOffset % buildingWidth); let bh = 100 + (Math.abs(Math.sin(absoluteIndex * 12.34)) * 150); 
        ctx.fillStyle = bColor; ctx.fillRect(bx, groundY - bh, buildingWidth - 5, bh);
-       if (absoluteIndex % 2 === 0) { 
-           ctx.fillStyle = isDay ? '#bdc3c7' : '#e94560'; 
-           ctx.fillRect(bx + 10, groundY - bh + 20, 10, 15); ctx.fillRect(bx + 30, groundY - bh + 40, 10, 15); 
-       } else if (absoluteIndex % 3 === 0) { 
-           ctx.fillStyle = isDay ? '#ecf0f1' : '#f1c40f'; 
-           ctx.fillRect(bx + 15, groundY - bh + 30, 20, 10); 
-       } else if (isDay) {
-           ctx.fillStyle = '#95a5a6'; ctx.fillRect(bx + 10, groundY - bh + 30, 15, 10); 
-       }
+       if (absoluteIndex % 2 === 0) { ctx.fillStyle = isDay ? '#bdc3c7' : '#e94560'; ctx.fillRect(bx + 10, groundY - bh + 20, 10, 15); ctx.fillRect(bx + 30, groundY - bh + 40, 10, 15); } 
+       else if (absoluteIndex % 3 === 0) { ctx.fillStyle = isDay ? '#ecf0f1' : '#f1c40f'; ctx.fillRect(bx + 15, groundY - bh + 30, 20, 10); } 
+       else if (isDay) { ctx.fillStyle = '#95a5a6'; ctx.fillRect(bx + 10, groundY - bh + 30, 15, 10); }
     }
   }
 
+  // ★ ドット矢印描画関数（真っ直ぐ）
+  function drawDotArrow(ctx, startX, startY, length, direction, color) {
+    ctx.fillStyle = color; const size = 3; 
+    if (direction === 'up') {
+        ctx.fillRect(startX - size/2, startY - length, size, length); 
+        ctx.fillRect(startX - size*1.5, startY - length + size, size, size); 
+        ctx.fillRect(startX + size*0.5, startY - length + size, size, size); 
+        ctx.fillRect(startX - size*2.5, startY - length + size*2, size, size); 
+        ctx.fillRect(startX + size*1.5, startY - length + size*2, size, size);
+    } else if (direction === 'down') {
+        ctx.fillRect(startX - size/2, startY, size, length); 
+        ctx.fillRect(startX - size*1.5, startY + length - size*2, size, size); 
+        ctx.fillRect(startX + size*0.5, startY + length - size*2, size, size); 
+        ctx.fillRect(startX - size*2.5, startY + length - size*3, size, size); 
+        ctx.fillRect(startX + size*1.5, startY + length - size*3, size, size);
+    }
+  }
+
+  function drawHeartUI(ctx, x, y, size, isActive) {
+    ctx.save();
+    ctx.font = size + 'px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    if (isActive) {
+      ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2; ctx.strokeText('♥️', x, y);
+      ctx.fillStyle = '#ff0000'; ctx.fillText('♥️', x, y);
+    } else {
+      ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2; ctx.strokeText('🖤', x, y);
+      ctx.fillStyle = '#555555'; ctx.fillText('🖤', x, y);
+    }
+    ctx.restore();
+  }
+
+  // ★ UIレイアウトの完璧な配置（中央ライン合わせ・カーニング・真上真下矢印）
   function drawUI() {
     ctx.fillStyle = '#2c3e50'; ctx.fillRect(0, groundY, canvas.width, canvas.height - groundY);
     ctx.fillStyle = '#e67e22'; ctx.fillRect(0, groundY, canvas.width, 8);
-    ctx.fillStyle = '#ffffff'; ctx.font = 'bold 18px sans-serif'; ctx.fillText('報酬: ' + score, 15, 30); ctx.fillText('メンタル:', 15, 60);
     
+    // 1. 報酬 
+    ctx.font = 'bold 22px sans-serif'; ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+    ctx.fillStyle = '#ffffff'; ctx.fillText('報酬: ' + score, 20, groundY + 40);
+    
+    // ★ 中央ラインの基準Y座標 (コントロールボタンの中央と合わせる)
+    let centerY = canvas.height - 90; 
+    
+    // ★ 2. メンタル・退職願のベースX座標 (左のボタンと被らない安全領域へ右揃えで配置)
+    let textRightEdge = canvas.width / 2 - 20; 
+    
+    // メンタル
+    let mentalY = centerY - 15; 
+    ctx.font = 'bold 16px sans-serif'; 
+    ctx.lineWidth = 2.5; ctx.lineJoin = "round";
+    ctx.textAlign = 'right'; // 右揃え
+    ctx.strokeStyle = '#ffffff'; ctx.strokeText('メンタル:', textRightEdge, mentalY);
+    ctx.fillStyle = '#ff0000'; ctx.fillText('メンタル:', textRightEdge, mentalY);
+    
+    // アイコンの開始位置を調整し、文字と程よい隙間(カーニング)を作る
+    let iconStartX = textRightEdge + 15; 
     for (let i = 0; i < 3; i++) {
-      let heartStatus = hp - i; 
-      for (let r = 0; r < heartSprite.length; r++) {
-        for (let c = 0; c < heartSprite[r].length; c++) {
-          if (heartSprite[r][c] === 6) {
-            if (heartStatus >= 1) { ctx.fillStyle = '#e74c3c'; }
-            else if (heartStatus > 0) { ctx.fillStyle = (c < heartSprite[r].length / 2) ? '#e74c3c' : '#555555'; }
-            else { ctx.fillStyle = '#555555'; }
-            ctx.fillRect(95 + i * 26 + c * 1.0, 48 + r * 1.0, 1.0, 1.0); 
-          }
-        }
-      }
+      drawHeartUI(ctx, iconStartX + i * 24, mentalY - 2, 20, (hp - i >= 1));
     }
-    ctx.fillStyle = '#3498db'; ctx.fillText('退職願(弾): ' + ammo + ' / 3', 15, 90);
+
+    // 3. 退職願
+    let retireY = centerY + 18; 
+    ctx.strokeStyle = '#ffffff'; ctx.strokeText('退職願:', textRightEdge, retireY);
+    ctx.fillStyle = '#3498db'; ctx.fillText('退職願:', textRightEdge, retireY);
+    
+    // 封筒アイコン開始位置（文字に近づけて一体感を出す）
+    for (let i = 0; i < 3; i++) {
+      drawEnvelope(ctx, iconStartX - 10 + i * 28, retireY - 12, 24, 16, (i < ammo));
+    }
+    
+    // ★ 遊び方画面時の Canvas内説明ドット矢印描画
+    if (isHowToOpen) {
+      ctx.font = 'bold 11px sans-serif';
+      
+      // 報酬（白）- 先端がオレンジのラインにピタッと乗るように長さを調整し、左にシフト
+      ctx.fillStyle = '#ffffff'; ctx.textAlign = 'left';
+      ctx.fillText('（現在のスコア。勤労(はし)り続けた命の対価だ！）', 20, groundY - 60);
+      drawDotArrow(ctx, 30, groundY - 55, 53, 'down', '#ffffff'); 
+
+      // 矢印のX座標（「メ」と「退」の文字の頭を一直線に狙う）
+      let arrowX = textRightEdge - 72; 
+
+      // メンタル（赤）- 文字の頭(メ)の真上から真っ直ぐ真下へ指す
+      ctx.fillStyle = '#ff0000'; ctx.textAlign = 'left';
+      ctx.fillText('（ゼロになると過労で倒れるので注意だ！）', textRightEdge - 80, centerY - 65); 
+      drawDotArrow(ctx, arrowX, centerY - 55, 20, 'down', '#ff0000'); 
+      
+      // 退職願（青）- 文字の頭(退)の真下から真っ直ぐ上へ
+      ctx.fillStyle = '#3498db'; ctx.textAlign = 'left';
+      ctx.fillText('（最大3発まで貯められる願いの弾丸だ！）', textRightEdge - 80, centerY + 70); 
+      drawDotArrow(ctx, arrowX, centerY + 45, 15, 'up', '#3498db'); 
+    }
   }
 
   function resetGame(isContinue = false) {
-    if (!isContinue) { 
-      score = 0; hp = 3.0; ammo = 0; gameSpeed = baseGameSpeed; targetFrames = 7200; 
-    } else { 
-      targetFrames = 14400; 
-      gameSpeed = savedGameSpeed; 
-    } 
-    frame = 0; playTimeFrames = 0; endingPhase = 0;
-    spawnTimerGround = 150; spawnTimerAir = 250; entities.length = 0; projectiles.length = 0; platforms.length = 0;
-    
+    if (!isContinue) { score = 0; hp = 3.0; ammo = 0; gameSpeed = baseGameSpeed; loopCount = 0; } else { gameSpeed = savedGameSpeed; loopCount++; } 
+    targetFrames = 7200; frame = 0; playTimeFrames = 0;
+    spawnTimerGround = 150; spawnTimerAir = 250; entities.length = 0; projectiles.length = 0; platforms.length = 0; particles.length = 0;
     player.y = groundY - pigHeight; player.dy = 0; player.isJumping = false; player.jobChangeTimer = 0; player.maxJumps = 1; player.opacity = 1.0; player.x = 60;
-    player.invincibleTimer = 0; 
-    popupTimer = 0; sysPopupTimer = 0;
+    player.invincibleTimer = 0; popupTimer = 0; sysPopupTimer = 0; player.onGround = false;
     document.getElementById('center-ui').style.display = 'none';
   }
 
   function startGame(isContinue = false) {
     if (gameState === 'playing' || gameState === 'ending_run' || gameState === 'ending_home' || gameState === 'ending_enter' || gameState === 'password') return;
-    initAudio(); 
-    document.getElementById('center-ui').style.display = 'none'; 
+    initAudio(); document.getElementById('center-ui').style.display = 'none'; 
     if (gameState === 'gameover' || gameState === 'start') { gameState = 'playing'; resetGame(false); }
     else if (gameState === 'continue') { gameState = 'playing'; resetGame(true); }
   }
 
   function animate() {
+    if (canvas.width < 10 || canvas.height < 10 || groundY <= 0) {
+      requestAnimationFrame(animate); return;
+    }
+
     if (gameState === 'password') { drawBackground(); drawUI(); player.draw(); }
     else if (gameState === 'start') { drawBackground(); drawUI(); player.draw(); } 
     else if (gameState === 'gameover') { drawBackground(); drawUI(); } 
     
     else if (gameState === 'playing') {
       playTimeFrames++;
-      if (playTimeFrames === targetFrames) {
-        gameState = 'ending_run';
-        endingTimer = 180; 
-        player.invincibleTimer = 0; 
-        let lastX = 0;
-        if (platforms.length > 0) { let lastP = platforms[platforms.length - 1]; lastX = lastP.x + lastP.width; }
-        platforms.push(new Platform(lastX, groundY, 5000)); 
-      } else {
-        spawnObjects(); 
-      }
+      if (playTimeFrames >= targetFrames) {
+        gameState = 'ending_run'; endingTimer = 180; player.invincibleTimer = 0; 
+        let lastX = 0; if (platforms.length > 0) { let lastP = platforms[platforms.length - 1]; lastX = lastP.x + lastP.width; }
+        platforms.push(new Platform(lastX, groundY, 5000)); entities.length = 0; projectiles.length = 0;
+      } else { spawnObjects(); }
 
       if (playTimeFrames > 0 && playTimeFrames % 1200 === 0 && playTimeFrames !== targetFrames) {
         gameSpeed = Math.min(6.0, gameSpeed + 0.3); score += 1000; 
@@ -736,84 +808,40 @@
       drawBackground(); drawUI();
       for (let i = platforms.length - 1; i >= 0; i--) { platforms[i].update(); if (platforms[i].x + platforms[i].width < 0) platforms.splice(i, 1); }
       for (let i = projectiles.length - 1; i >= 0; i--) { projectiles[i].update(); if (projectiles[i].x > canvas.width) projectiles.splice(i, 1); }
-
       for (let i = entities.length - 1; i >= 0; i--) {
-        let ent = entities[i]; ent.update(); 
-        let hitByProjectile = false; let drawY = ent.y + ent.drawYOffset; 
+        let ent = entities[i]; ent.update(); let hitByProjectile = false; let drawY = ent.y + ent.drawYOffset; 
         if (ent.type.startsWith('boss') || ent.type === 'email' || ent.type === 'fireball') {
-          for (let j = projectiles.length - 1; j >= 0; j--) {
-            let p = projectiles[j];
-            if (p.x < ent.x + ent.width && p.x + p.width > ent.x && p.y < drawY + ent.height && p.y + p.height > drawY) { projectiles.splice(j, 1); hitByProjectile = true; break; }
-          }
+          for (let j = projectiles.length - 1; j >= 0; j--) { let p = projectiles[j]; if (p.x < ent.x + ent.width && p.x + p.width > ent.x && p.y < drawY + ent.height && p.y + p.height > drawY) { projectiles.splice(j, 1); hitByProjectile = true; break; } }
         }
         if (hitByProjectile) { playSound('defeat'); addScore(100); entities.splice(i, 1); continue; }
-
         if (player.x < ent.x + ent.width && player.x + player.width > ent.x && player.y < drawY + ent.height && player.y + player.height > drawY) {
-          if (ent.type === 'item_heal') { playSound('item'); if(hp < 3) hp += 1; addScore(50); entities.splice(i, 1);
-          } else if (ent.type === 'item_acorn') { playSound('item'); hp = 3; addScore(500); entities.splice(i, 1);
-          } else if (ent.type === 'item_job_change') { playSound('item'); addScore(500, "転職成功！"); player.jobChangeTimer = 30 * 60; player.maxJumps = 2; entities.splice(i, 1);
-          } else {
+          if (ent.type === 'item_heal') { playSound('item'); if(hp < 3) hp += 1; addScore(50); entities.splice(i, 1); } 
+          else if (ent.type === 'item_acorn') { playSound('item'); hp = 3; addScore(500); entities.splice(i, 1); } 
+          else if (ent.type === 'item_job_change') { playSound('item'); addScore(500, "転職成功！"); player.jobChangeTimer = 30 * 60; player.maxJumps = 2; entities.splice(i, 1); } 
+          else {
             if (player.dy > 0 && player.y + player.height - player.dy <= drawY + 15 && ent.isStompable) {
               player.bounce(); playSound('defeat'); entities.splice(i, 1);
-              if (ent.type.startsWith('boss')) { if (ammo < 3) { ammo += 1; addScore(100, "退職願 Get!"); } else addScore(100); }
-              else addScore(100);
+              if (ent.type.startsWith('boss')) { if (ammo < 3) { ammo += 1; addScore(100, "退職願 Get!"); } else addScore(100); } else addScore(100);
             } else { player.hit(1.0); }
           }
-        } else if (ent.x + ent.width < 0) {
-          entities.splice(i, 1); score += 10; playSound('point');
-        }
+        } else if (ent.x + ent.width < 0) { entities.splice(i, 1); score += 10; playSound('point'); }
       }
-      player.update(); drawPopup(); frame++;
+      updateAndDrawParticles(); player.update(); drawPopup(); frame++;
     }
-
     else if (gameState === 'ending_run') {
-      drawBackground(); drawUI();
-      for (let p of platforms) p.update();
-      for (let e of entities) e.update(); 
-      for (let p of projectiles) p.update();
-      player.update();
-      drawPopup(); frame++;
-
-      endingTimer--;
-      if (endingTimer <= 0) {
-        gameState = 'ending_home';
-        savedGameSpeed = gameSpeed; 
-        let home = new Entity('home', groundY); home.x = canvas.width;
-        entities.push(home);
-      }
+      drawBackground(); drawUI(); for (let p of platforms) p.update(); for (let e of entities) e.update(); for (let p of projectiles) p.update();
+      updateAndDrawParticles(); player.update(); drawPopup(); frame++; endingTimer--;
+      if (endingTimer <= 0) { gameState = 'ending_home'; savedGameSpeed = gameSpeed; let home = new Entity('home', groundY); home.x = canvas.width; entities.push(home); }
     }
     else if (gameState === 'ending_home') {
-      gameSpeed = 1.5; 
-      drawBackground(); drawUI();
-      for (let p of platforms) p.update();
-      for (let e of entities) e.update(); 
-      player.update();
-      drawPopup(); frame++;
-
-      let home = entities.find(e => e.type === 'home');
-      if (home && home.x <= canvas.width / 2) {
-        gameState = 'ending_enter'; 
-      }
+      gameSpeed = 1.5; drawBackground(); drawUI(); for (let p of platforms) p.update(); for (let e of entities) e.update(); player.update(); drawPopup(); frame++;
+      let home = entities.find(e => e.type === 'home'); if (home && home.x <= canvas.width / 2) { gameState = 'ending_enter'; }
     }
     else if (gameState === 'ending_enter') {
-      drawBackground(); drawUI();
-      for (let p of platforms) p.draw();
-      for (let e of entities) e.draw();
-      
-      player.x += 1.5;
-      let home = entities.find(e => e.type === 'home');
-      if (home && player.x > home.x + 40) {
-        player.opacity = 0; 
-      }
-      player.draw();
-      drawPopup(); frame++;
-
-      if (player.opacity <= 0) {
-        gameState = 'continue';
-        showContinueUI();
-      }
+      drawBackground(); drawUI(); for (let p of platforms) p.draw(); for (let e of entities) e.draw(); player.x += 1.5;
+      let home = entities.find(e => e.type === 'home'); if (home && player.x > home.x + 40) { player.opacity = 0; }
+      player.draw(); drawPopup(); frame++; if (player.opacity <= 0) { gameState = 'continue'; showContinueUI(); }
     }
-
     requestAnimationFrame(animate);
   }
 
@@ -821,45 +849,21 @@
   document.getElementById('btn-unlock').addEventListener('click', () => {
     const val = document.getElementById('pw-input').value;
     if (val === '0710') {
-      initAudio(); 
-      document.getElementById('password-gate').style.display = 'none';
-      gameState = 'start';
-      resetGame(false); 
-      showStartUI(); 
-    } else {
-      document.getElementById('pw-error').style.display = 'block';
-    }
+      initAudio(); document.getElementById('password-gate').style.display = 'none';
+      gameState = 'start'; resetGame(false); showStartUI(); 
+    } else { document.getElementById('pw-error').style.display = 'block'; }
   });
-  document.getElementById('pw-input').addEventListener('keypress', (e) => {
-    if(e.key === 'Enter') document.getElementById('btn-unlock').click();
-  });
+  document.getElementById('pw-input').addEventListener('keypress', (e) => { if(e.key === 'Enter') document.getElementById('btn-unlock').click(); });
 
   document.getElementById('btn-main').addEventListener('click', (e) => { e.preventDefault(); startGame(gameState === 'continue'); });
   document.getElementById('btn-main').addEventListener('touchstart', (e) => { e.preventDefault(); startGame(gameState === 'continue'); }, {passive: false});
+  document.getElementById('btn-quit').addEventListener('click', (e) => { e.preventDefault(); gameState = 'start'; resetGame(false); showStartUI(); });
+  document.getElementById('btn-quit').addEventListener('touchstart', (e) => { e.preventDefault(); gameState = 'start'; resetGame(false); showStartUI(); }, {passive: false});
 
-  document.getElementById('btn-quit').addEventListener('click', (e) => {
-    e.preventDefault();
-    gameState = 'start';
-    resetGame(false);
-    showStartUI(); 
-  });
-  document.getElementById('btn-quit').addEventListener('touchstart', (e) => {
-    e.preventDefault();
-    gameState = 'start';
-    resetGame(false);
-    showStartUI(); 
-  }, {passive: false});
-
-  const doJump = (e) => { e.preventDefault(); initAudio();
-    if (gameState === 'start') { startGame(); setTimeout(() => { if (gameState === 'playing') player.jump(); }, 50); }
-    else if (gameState === 'playing') player.jump();
-  };
+  const doJump = (e) => { e.preventDefault(); initAudio(); if (gameState === 'start') { startGame(); setTimeout(() => { if (gameState === 'playing') player.jump(); }, 50); } else if (gameState === 'playing') player.jump(); };
   document.getElementById('btn-jump').addEventListener('touchstart', doJump, {passive: false}); document.getElementById('btn-jump').addEventListener('mousedown', doJump);
 
-  const doAttack = (e) => { e.preventDefault(); initAudio();
-    if (gameState === 'start') startGame();
-    else if (gameState === 'playing' && ammo > 0) { projectiles.push(new Projectile()); ammo--; }
-  };
+  const doAttack = (e) => { e.preventDefault(); initAudio(); if (gameState === 'start') startGame(); else if (gameState === 'playing' && ammo > 0) { projectiles.push(new Projectile()); ammo--; } };
   document.getElementById('btn-attack').addEventListener('touchstart', doAttack, {passive: false}); document.getElementById('btn-attack').addEventListener('mousedown', doAttack);
 
   window.addEventListener('keydown', (e) => {
@@ -870,39 +874,36 @@
   });
 
   const btnHowTo = document.getElementById('btn-how-to'); const modalHowTo = document.getElementById('how-to-modal'); const btnCloseHowTo = document.getElementById('btn-close-how-to');
-  
-  const openModal = (e) => { 
-    e.preventDefault(); e.stopPropagation(); 
-    modalHowTo.style.display = 'block'; 
-    document.getElementById('hud-explanations').style.display = 'block';
-  }; 
-  const closeModal = (e) => { 
-    e.preventDefault(); e.stopPropagation(); 
-    modalHowTo.style.display = 'none'; 
-    document.getElementById('hud-explanations').style.display = 'none';
-  };
-  
+  const openModal = (e) => { e.preventDefault(); e.stopPropagation(); modalHowTo.style.display = 'block'; isHowToOpen = true; }; 
+  const closeModal = (e) => { e.preventDefault(); e.stopPropagation(); modalHowTo.style.display = 'none'; isHowToOpen = false; };
   btnHowTo.addEventListener('click', openModal); btnHowTo.addEventListener('touchstart', openModal, {passive: false});
   btnCloseHowTo.addEventListener('click', closeModal); btnCloseHowTo.addEventListener('touchstart', closeModal, {passive: false});
 
   window.addEventListener('load', () => {
+    resize();
+    let retryCount = 0;
+    let resizeInterval = setInterval(() => { resize(); retryCount++; if(retryCount > 12) clearInterval(resizeInterval); }, 100);
+
     setTimeout(() => {
-      resize();
-      drawIcon('icon-pig', pigSprite, 'pig', 40, 40, 1.2);
+      drawIcon('icon-pig', pigSprite, 'pig', 40, 40, 1.2); 
       drawIcon('icon-heal', heartSprite, 'heal', 40, 40, 0.85);
       drawIcon('icon-acorn', acornSprite, 'acorn', 40, 40, 0.85); 
       drawIcon('icon-job', jobChangeSprite, 'job', 40, 40, 0.85);
-      drawIcon('icon-mail', emailSprite, 'mail', 40, 40, 1.0);
+      drawIcon('icon-mail', emailSprite, 'mail', 40, 40, 1.0); 
       drawDoubleBossIcon();
-      drawIcon('icon-fire', fireballSprite, 'fire', 40, 40, 1.0);
+      drawIcon('icon-fire', fireballSprite, 'fire', 40, 40, 1.0); 
       drawIcon('icon-train', trainIconSprite, '', 40, 40, 1.0); 
       drawIcon('icon-clock', clockIconSprite, '', 40, 40, 1.0); 
+      
+      drawCircleBtn('icon-jump', 'JUMP', '#2ed573', '#27ae60');
+      drawCircleBtn('icon-attack', '退職願', '#3498db', '#2980b9');
 
+      document.getElementById('password-gate').style.display = 'flex';
       gameState = 'password';
       document.getElementById('center-ui').style.display = 'none';
-      resetGame(false);
+      resetGame(false); 
       requestAnimationFrame(animate);
-    }, 100);
+    }, 250);
   });
 </script>
 </body>
