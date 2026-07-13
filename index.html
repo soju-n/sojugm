@@ -9,7 +9,7 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 
-<title>走れ！ネガティ豚 -オフィス街サバイバル-</title>
+<title>走れ！ネガティ豚 -マスターアップ-</title>
 <style>
   html, body { width: 100%; height: 100%; height: 100dvh; margin: 0; padding: 0; overflow: hidden; background-color: #111; font-family: 'Helvetica Neue', Arial, sans-serif; touch-action: none; }
   #game-wrapper { position: relative; width: 100%; height: 100%; max-width: 800px; margin: 0 auto; background-color: #000; overflow: hidden; }
@@ -27,8 +27,6 @@
   #ui-score { display: none; color: #f1c40f; font-size: 24px; font-weight: bold; margin-bottom: 25px; text-shadow: 2px 2px 0 #000; text-align: center; }
 
   rt { font-size: 0.5em; font-weight: normal; }
-  #btn-main rt { color: #2c3e50; }
-  #btn-quit rt { color: #fff; }
 
   #btn-main { display: none; background-color: #f1c40f; color: #2c3e50; border: 4px solid #f39c12; padding: 10px 40px; font-size: 28px; font-weight: bold; border-radius: 12px; box-shadow: 0 6px 0 rgba(0,0,0,0.5); cursor: pointer; user-select: none; transition: transform 0.1s, box-shadow 0.1s; min-width: 180px; text-align: center; pointer-events: auto; margin-bottom: 15px; }
   #btn-main:active { transform: translateY(6px); box-shadow: none; }
@@ -53,8 +51,7 @@
   .close-btn { background: #e74c3c; color: white; border: none; padding: 8px 30px; font-size: 18px; border-radius: 8px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 0 #c0392b; display: block; margin: 10px auto 0; }
   .close-btn:active { transform: translateY(4px); box-shadow: none; }
 
-  /* ★ 全体を下にシフト（bottom: 50px）させ空間を確保 */
-  #controls { position: absolute; bottom: max(50px, env(safe-area-inset-bottom)); left: 0; width: 100%; display: flex; justify-content: space-between; padding: 0 20px; box-sizing: border-box; pointer-events: none; }
+  #controls { position: absolute; bottom: 35px; left: 0; width: 100%; display: flex; justify-content: space-between; padding: 0 20px; box-sizing: border-box; pointer-events: none; }
   .btn { width: 70px; height: 70px; border-radius: 50%; font-size: 14px; font-weight: bold; display: flex; justify-content: center; align-items: center; user-select: none; pointer-events: auto; opacity: 0.85; box-shadow: 0 4px 0 rgba(0,0,0,0.4); transition: transform 0.1s, box-shadow 0.1s; }
   .btn:active { transform: translateY(4px); box-shadow: none; opacity: 1; }
   
@@ -87,7 +84,6 @@
     <ul class="how-to-list">
       <li>
         <div class="icon-container"><canvas id="icon-pig" style="width:40px; height:40px;"></canvas></div>
-        <!-- ★ テキスト追加 -->
         <div class="how-to-text"><strong>ネガティぶた</strong>社畜のサラリーマン。業務過多の毎日でもめげずに働いている。<br>基本的に着地前なら1回ジャンプできる(着地前ならオナラで跳べるぞ。)</div>
       </li>
       <li>
@@ -104,11 +100,15 @@
       </li>
       <li>
         <div class="icon-container"><canvas id="icon-acorn" style="width:40px; height:40px;"></canvas></div>
-        <div class="how-to-text"><strong>ドングリ</strong>500pt / メンタルを全回復。豚さんはドングリが大好き。</div>
+        <div class="how-to-text"><strong>ドングリ</strong>750pt / メンタルを全回復する。また、一時的に最大メンタルが4になる。豚さんはドングリが大好き。</div>
       </li>
       <li>
         <div class="icon-container"><canvas id="icon-job" style="width:40px; height:40px;"></canvas></div>
         <div class="how-to-text"><strong>転職活動</strong>500pt / 30秒間無敵&2段ジャンプ。ステップアップを目指せ！テキにぶつかると解除されちゃうよ。</div>
+      </li>
+      <li>
+        <div class="icon-container"><canvas id="icon-redpig" style="width:40px; height:40px;"></canvas></div>
+        <div class="how-to-text"><strong>レッドブタ</strong>500pt / 米国仕様のカフェインドリンク。ギンギン状態で、一定時間無敵ダッシュをする。ギンギン状態での報酬は2倍になる。</div>
       </li>
       <li>
         <div class="icon-container"><canvas id="icon-mail" style="width:40px; height:40px;"></canvas></div>
@@ -165,6 +165,23 @@
   ]);
   const trainIconSprite = strToSprite([ "00000000000000000000000000000000", "02222222222222222222222222222220", "29999999999999999999999999999992", "29999999999999999999999999999992", "29922222299222222992222229999992", "2992AAAA2992AAAA2992AAAA29992292", "2992AAAA2992AAAA2992AAAA29992292", "2992AAAA2992AAAA2992AAAA29992292", "29922222299222222992222229999992", "29999999999999999999999999999992", "2BBBBBBBBBBBBBBBBBBBBBBBBBBBBBB2", "2BBBBBBBBBBBBBBBBBBBBBBBBBBBBBB2", "29999999999999999999999999999992", "29992299999992299999992299999992", "29992299999992299999992299999992", "29999999999999999999999999999992", "02222222222222222222222222222220", "00022002200000220022000002200220", "00022002200000220022000002200220", "00000000000000000000000000000000" ]);
   const clockIconSprite = strToSprite([ "000000002222222200000000", "000000225555555522000000", "000022555555555555220000", "000255555555555555552000", "002555555555555555555200", "025555555552255555555520", "025555555552255555555520", "255555555552255555555552", "255555555552255555555552", "255555555552255555555552", "255555555552255555555552", "255555555552255555555552", "255555555552222222225552", "255555555555555555555552", "255555555555555555555552", "255555555555555555555552", "255555555555555555555552", "025555555555555555555520", "025555555555555555555520", "002555555555555555555200", "000255555555555555552000", "000022555555555555220000", "000000225555555522000000", "000000002222222200000000" ]);
+  
+  const redpigSprite1 = strToSprite([
+    "0000000002222000000000", "0000000029999200000000", "0000000299999920000000",
+    "022000029999HH20000220", "25522002999HHH20022552", "2555520299HHHH20255552",
+    "025555229HHHHH22555520", "00255552HHHHHH25555200", "00025552HHHHHH25552000",
+    "00002552HHHHHH25520000", "00000222HHHHHH22200000", "00000002HHH99920000000",
+    "00000002HH999920000000", "00000002H9999920000000", "0000000299999920000000",
+    "0000000029999200000000", "0000000002222000000000"
+  ]);
+  const redpigSprite2 = strToSprite([
+    "0000000002222000000000", "0000000029999200000000", "0000000299999920000000",
+    "000000029999HH20000000", "00000002999HHH20000000", "0000022299HHHH22200000",
+    "000225529HHHHH25522000", "00255552HHHHHH25555200", "02555522HHHHHH22555520",
+    "25555202HHHHHH20255552", "25522002HHHHHH20022552", "02200002HHH99920000220",
+    "00000002HH999920000000", "00000002H9999920000000", "0000000299999920000000",
+    "0000000029999200000000", "0000000002222000000000"
+  ]);
 
   function generateTrain() {
     const tRows = 34; const tCols = 96; let sprite = [];
@@ -194,7 +211,6 @@
   }
   const trainSprite = generateTrain();
 
-  // ★ 弾・UI用の封筒アイコン
   function drawEnvelope(ctx, x, y, width, height, isActive) {
     ctx.save();
     ctx.fillStyle = isActive ? '#ffffff' : '#888888';
@@ -202,11 +218,6 @@
     ctx.strokeStyle = '#000000';
     ctx.lineWidth = 2;
     ctx.strokeRect(x, y, width, height);
-    
-    ctx.beginPath();
-    ctx.moveTo(x, y); ctx.lineTo(x + width/2, y + height/2); ctx.lineTo(x + width, y);
-    ctx.stroke();
-
     if (isActive) {
       ctx.fillStyle = '#3498db';
       ctx.font = 'bold ' + Math.floor(height * 0.8) + 'px sans-serif';
@@ -228,28 +239,43 @@
     const offsetY = Math.floor((c.height - rows * scale) / 2);
 
     if (type === 'acorn') {
-      ctx.save(); ctx.globalAlpha = 0.4; let glowSize = scale * 1.5;
-      let hOffsetX = offsetX + Math.floor((cols*scale - heartSprite[0].length*glowSize)/2);
-      let hOffsetY = offsetY + Math.floor((rows*scale - heartSprite.length*glowSize)/2);
+      ctx.save(); ctx.globalAlpha = 0.4; 
+      let glowSize = scale * 1.2;
+      let hOffsetX = Math.floor((cols * scale - heartSprite[0].length * glowSize) / 2);
+      let hOffsetY = Math.floor((rows * scale - heartSprite.length * glowSize) / 2);
       for (let r=0; r<heartSprite.length; r++) {
         for (let col=0; col<heartSprite[r].length; col++) {
-          if (heartSprite[r][col]!==0) { ctx.fillStyle = colors[6]; ctx.fillRect(hOffsetX+col*glowSize, hOffsetY+r*glowSize, glowSize, glowSize); }
+          if (heartSprite[r][col]!==0) { 
+            ctx.fillStyle = colors[6]; 
+            ctx.fillRect(offsetX + hOffsetX + col * glowSize, offsetY + hOffsetY + r * glowSize, glowSize, glowSize); 
+          }
         }
       }
       ctx.restore();
     }
+    
     if (type === 'job') {
       ctx.fillStyle = 'rgba(52, 152, 219, 0.4)'; ctx.beginPath();
       ctx.arc(offsetX + cols*scale/2, offsetY + rows*scale/2, cols*scale/2, 0, Math.PI*2); ctx.fill();
+    }
+    if (type === 'redpig') {
+      ctx.save(); ctx.shadowColor = '#2ecc71'; ctx.shadowBlur = 10;
     }
 
     for (let r = 0; r < rows; r++) {
       for (let col = 0; col < cols; col++) {
         if (sprite[r][col] !== 0) {
           ctx.fillStyle = colors[sprite[r][col]];
-          ctx.fillRect(offsetX + col * scale, offsetY + r * scale, scale, scale);
+          ctx.fillRect(Math.floor(offsetX + col * scale), Math.floor(offsetY + r * scale), scale, scale);
         }
       }
+    }
+    
+    if (type === 'redpig') {
+      ctx.restore();
+      ctx.fillStyle = '#e74c3c'; ctx.font = `bold ${Math.floor(scale * 9)}px sans-serif`; 
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText('レ', offsetX + cols * scale / 2, offsetY + rows * scale / 2 + scale);
     }
 
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
@@ -283,14 +309,13 @@
       const offsetY = Math.floor((c.height - sprite.length * scale) / 2);
       for (let r = 0; r < sprite.length; r++) {
         for (let col = 0; col < sprite[r].length; col++) {
-          if (sprite[r][col] !== 0) { ctx.fillStyle = colors[sprite[r][col]]; ctx.fillRect(offsetX + col * scale, offsetY + r * scale, scale, scale); }
+          if (sprite[r][col] !== 0) { ctx.fillStyle = colors[sprite[r][col]]; ctx.fillRect(Math.floor(offsetX + col * scale), Math.floor(offsetY + r * scale), scale, scale); }
         }
       }
     };
     draw(bossMaleSprite, 10); draw(bossFemaleSprite, 74);
   }
 
-  // ★ ルビの完全英語化
   function showStartUI() {
     document.getElementById('ui-title').style.display = 'none';
     document.getElementById('ui-score').style.display = 'none';
@@ -368,25 +393,50 @@
     } else if (type === 'gameover') {
       osc.type = 'triangle'; osc.frequency.setValueAtTime(200, now); osc.frequency.exponentialRampToValueAtTime(40, now + 1.0);
       gain.gain.setValueAtTime(0.4, now); gain.gain.linearRampToValueAtTime(0, now + 1.0); osc.start(now); osc.stop(now + 1.0);
+    } else if (type === 'home_bgm') {
+      const notes = [523.25, 659.25, 783.99, 1046.50, 783.99, 659.25, 523.25, 659.25, 783.99, 1046.50]; 
+      let startTime = now;
+      for (let i = 0; i < 20; i++) { 
+        const o = audioCtx.createOscillator(); const g = audioCtx.createGain();
+        o.type = 'sine'; o.frequency.setValueAtTime(notes[i % notes.length], startTime);
+        g.gain.setValueAtTime(0.1, startTime); g.gain.exponentialRampToValueAtTime(0.01, startTime + 0.4);
+        o.connect(g); g.connect(audioCtx.destination);
+        o.start(startTime); o.stop(startTime + 0.4);
+        startTime += 0.3;
+      }
+    } else if (type === 'door_close') {
+      const o1 = audioCtx.createOscillator(); const g1 = audioCtx.createGain();
+      o1.type = 'square'; o1.frequency.setValueAtTime(150, now); o1.frequency.exponentialRampToValueAtTime(40, now + 0.1);
+      g1.gain.setValueAtTime(0.4, now); g1.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+      o1.connect(g1); g1.connect(audioCtx.destination);
+      const o2 = audioCtx.createOscillator(); const g2 = audioCtx.createGain();
+      o2.type = 'triangle'; o2.frequency.setValueAtTime(80, now + 0.15); o2.frequency.exponentialRampToValueAtTime(20, now + 0.3);
+      g2.gain.setValueAtTime(0.5, now + 0.15); g2.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+      o2.connect(g2); g2.connect(audioCtx.destination);
+      o1.start(now); o1.stop(now + 0.2); o2.start(now + 0.15); o2.stop(now + 0.3);
+    } else if (type === 'fever_charge') {
+      const o = audioCtx.createOscillator(); const g = audioCtx.createGain();
+      o.type = 'square'; o.frequency.setValueAtTime(50, now); o.frequency.linearRampToValueAtTime(300, now + 0.6);
+      g.gain.setValueAtTime(0.0, now);
+      for(let i=0; i<12; i++) {
+        g.gain.setValueAtTime(0.3, now + i*0.05); g.gain.linearRampToValueAtTime(0.05, now + i*0.05 + 0.025);
+      }
+      g.gain.linearRampToValueAtTime(0, now + 0.6);
+      o.connect(g); g.connect(audioCtx.destination);
+      o.start(now); o.stop(now + 0.6);
     }
   }
 
   const canvas = document.getElementById('gameCanvas'); const ctx = canvas.getContext('2d');
   
   let groundY = 0; 
-  let currentWidth = 0;
-  let currentHeight = 0;
-
   function resize() { 
     let w = window.innerWidth;
     let h = window.innerHeight;
     if (w > 800) w = 800;
     if (h < 200) return; 
-
     if (canvas.width !== w || canvas.height !== h) {
-      canvas.width = w; 
-      canvas.height = h; 
-      groundY = h - 210; 
+      canvas.width = w; canvas.height = h; groundY = h - 210; 
     }
   }
   window.addEventListener('resize', resize); 
@@ -394,8 +444,16 @@
   let gameState = 'password'; 
   let score = 0; let frame = 0; let playTimeFrames = 0; 
   let baseGameSpeed = 3.5; let gameSpeed = baseGameSpeed; let savedGameSpeed = baseGameSpeed;
-  let hp = 3.0; let ammo = 0; let bgOffset = 0;
-  let spawnTimerGround = 0; let spawnTimerAir = 0;
+  let hp = 3.0; let ammo = 1; let bgOffset = 0;
+  
+  let spawnTimerGround = 0; 
+  let spawnTimerAir = 0; 
+  let spawnTimerRedPig = 0; 
+  
+  let feverChargeTimer = 0; 
+  let chargeType = 'redpig';
+  let endingWaitTimer = 0; 
+
   let popupText1 = ""; let popupText2 = ""; let popupTimer = 0; let popupY = 0;
   let sysPopupText = ""; let sysPopupSubText = ""; let sysPopupTimer = 0; let sysPopupY = 0;
   let isHowToOpen = false;
@@ -405,7 +463,6 @@
   const pigPixelSize = 1.6; 
   const pigWidth = 29 * pigPixelSize; const pigHeight = 25 * pigPixelSize; 
 
-  // ★ クリーム色のオナラエフェクト
   const particles = [];
   class FartEffect {
     constructor(x, y) { 
@@ -415,19 +472,11 @@
       this.vy = Math.random() * 1.5 + 1;
       this.size = Math.random() * 4 + 3;
     }
-    update() { 
-      this.x += this.vx; this.y += this.vy; 
-      this.size += 0.5;
-      this.life--; 
-    }
+    update() { this.x += this.vx; this.y += this.vy; this.size += 0.5; this.life--; }
     draw() {
-      ctx.save(); 
-      ctx.globalAlpha = this.life / this.maxLife;
-      ctx.fillStyle = '#FFFACD'; // LemonChiffon (クリーム色)
-      ctx.beginPath();
-      ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.restore();
+      ctx.save(); ctx.globalAlpha = this.life / this.maxLife; ctx.fillStyle = '#FFFACD';
+      ctx.beginPath(); ctx.arc(Math.floor(this.x), Math.floor(this.y), this.size, 0, Math.PI * 2);
+      ctx.fill(); ctx.restore();
     }
   }
   function updateAndDrawParticles() {
@@ -440,21 +489,30 @@
   const player = {
     x: 60, y: 0, width: pigWidth - 6, height: pigHeight - 2, 
     dy: 0, gravity: 0.55, jumpPower: -12.0, isJumping: false, invincibleTimer: 0,
-    jobChangeTimer: 0, maxJumps: 1, jumpCount: 0, opacity: 1.0, onGround: false,
+    jobChangeTimer: 0, dashTimer: 0, savedGameSpeed: baseGameSpeed,
+    maxJumps: 1, jumpCount: 0, opacity: 1.0, onGround: true,
+    
     draw() {
-      if (this.jobChangeTimer > 0 && frame % 20 < 10) {
-        ctx.fillStyle = 'rgba(52, 152, 219, 0.4)'; ctx.beginPath(); ctx.arc(this.x + this.width / 2, this.y + this.height / 2, this.width * 0.8, 0, Math.PI * 2); ctx.fill();
+      let drawX = Math.floor(this.x); let drawY = Math.floor(this.y);
+      if ((this.dashTimer > 0 || this.jobChangeTimer > 0) && frame % 20 < 10) {
+        ctx.fillStyle = 'rgba(52, 152, 219, 0.4)'; 
+        ctx.beginPath(); ctx.arc(drawX + this.width / 2, drawY + this.height / 2, this.width * 0.8, 0, Math.PI * 2); ctx.fill();
       }
-      if (this.invincibleTimer > 0 && Math.floor(this.invincibleTimer / 5) % 2 === 0) return;
+      
+      if (this.invincibleTimer > 0 && Math.floor(this.invincibleTimer / 5) % 2 === 0 && this.dashTimer <= 0) return;
       ctx.save(); ctx.globalAlpha = this.opacity;
       for (let row = 0; row < pigSprite.length; row++) {
         for (let col = 0; col < pigSprite[row].length; col++) {
-          if (pigSprite[row][col] !== 0) { ctx.fillStyle = colors[pigSprite[row][col]]; ctx.fillRect(this.x + col * pigPixelSize, this.y + row * pigPixelSize, pigPixelSize, pigPixelSize); }
+          if (pigSprite[row][col] !== 0) { ctx.fillStyle = colors[pigSprite[row][col]]; ctx.fillRect(drawX + col * pigPixelSize, drawY + row * pigPixelSize, pigPixelSize, pigPixelSize); }
         }
       }
       ctx.restore();
     },
     update() {
+      if (this.dashTimer > 0) { 
+        this.dashTimer--; 
+        if (this.dashTimer <= 0) { gameSpeed = this.savedGameSpeed; this.invincibleTimer = 60; } 
+      }
       if (this.jobChangeTimer > 0) { this.jobChangeTimer--; if (this.jobChangeTimer <= 0) this.maxJumps = 1; }
       if (this.invincibleTimer > 0) this.invincibleTimer--;
       this.dy += this.gravity; this.y += this.dy;
@@ -471,17 +529,17 @@
     },
     jump() { 
       if (this.jumpCount < this.maxJumps) { 
-        // ★ 空中ジャンプ（2段ジャンプ等）の時だけオナラを出す
         if (!this.onGround) { 
-          for(let i=0; i<4; i++) particles.push(new FartEffect(this.x + this.width/2 - 5 + Math.random()*10, this.y + this.height - Math.random()*5)); 
+          for(let i=0; i<5; i++) particles.push(new FartEffect(this.x + this.width/2 - 5 + Math.random()*10, this.y + this.height - Math.random()*5)); 
         }
         this.dy = this.jumpPower; this.isJumping = true; this.jumpCount++; this.onGround = false; playSound('jump'); 
       } 
     },
     bounce() { this.dy = this.jumpPower * 0.7; this.isJumping = true; this.jumpCount = 1; this.onGround = false; },
     hit(damage = 1.0) {
-      if (this.invincibleTimer <= 0) {
-        if (this.jobChangeTimer > 0) { this.jobChangeTimer = 0; this.maxJumps = 1; this.invincibleTimer = 60; playSound('damage');
+      if (this.invincibleTimer <= 0 && this.dashTimer <= 0) {
+        if (this.jobChangeTimer > 0) { 
+          this.jobChangeTimer = 0; this.maxJumps = 1; this.invincibleTimer = 60; playSound('damage');
         } else {
           hp -= damage; this.invincibleTimer = 60; playSound('damage'); 
           if (hp <= 0) { playSound('gameover'); gameState = 'gameover'; showGameoverUI(); }
@@ -492,17 +550,35 @@
 
   const projectiles = [];
   class Projectile {
-    constructor() { this.x = player.x + player.width; this.y = player.y + player.height / 2; this.width = 24; this.height = 16; this.speed = 8; }
-    draw() { drawEnvelope(ctx, this.x, this.y, this.width, this.height, true); }
-    update() { this.x += this.speed; this.draw(); }
+    constructor() { 
+      this.x = player.x + player.width; 
+      this.baseY = player.y + player.height / 2; 
+      this.hitboxY = player.y; 
+      this.hitboxHeight = player.height; 
+      this.width = 24; 
+      this.drawHeight = 16; 
+      this.speed = 8; 
+      this.angle = 0;
+      this.amplitude = (player.height - this.drawHeight) / 2; 
+    }
+    draw() { 
+      let drawY = this.baseY - this.drawHeight / 2 + Math.sin(this.angle) * this.amplitude;
+      drawEnvelope(ctx, Math.floor(this.x), Math.floor(drawY), this.width, this.drawHeight, true); 
+    }
+    update() { 
+      this.x += this.speed; 
+      this.angle += 0.25; 
+      this.draw(); 
+    }
   }
 
   const platforms = [];
   class Platform {
     constructor(x, y, width) { this.x = x; this.y = y; this.width = width; this.height = 15; }
     draw() {
-      ctx.fillStyle = '#5c6a79'; ctx.fillRect(this.x, this.y, this.width, this.height);
-      ctx.fillStyle = '#2c3e50'; for(let i=0; i<this.width; i+=20) ctx.fillRect(this.x + i, this.y, 10, 4);
+      let drawX = Math.floor(this.x); let drawY = Math.floor(this.y);
+      ctx.fillStyle = '#5c6a79'; ctx.fillRect(drawX, drawY, this.width, this.height);
+      ctx.fillStyle = '#2c3e50'; for(let i=0; i<this.width; i+=20) ctx.fillRect(drawX + i, drawY, 10, 4);
     }
     update() { this.x -= gameSpeed; this.draw(); }
   }
@@ -517,35 +593,53 @@
       } else if (type === 'item_heal') { this.width = 22 * pigPixelSize; this.height = 18 * pigPixelSize; this.y = yPos - this.height;
       } else if (type === 'item_acorn') { this.width = 18 * pigPixelSize; this.height = 18 * pigPixelSize; this.y = yPos - this.height;
       } else if (type === 'item_job_change') { this.width = 24 * pigPixelSize; this.height = 24 * pigPixelSize; this.y = yPos - this.height;
+      } else if (type === 'redpig') { 
+        this.width = 22 * pigPixelSize; this.height = 17 * pigPixelSize; this.isStompable = false; 
+        this.y = yPos; this.x = canvas.width + 50;
       } else if (type === 'fireball') { this.width = 36 * pigPixelSize; this.height = 19 * pigPixelSize; this.isStompable = false; this.y = yPos;
       } else if (type === 'home') { this.width = 35 * pigPixelSize * 1.5; this.height = 30 * pigPixelSize * 1.5; this.y = groundY - this.height; this.isStompable = false; }
-      if (this.platform && type !== 'home') { this.localX = (this.platform.width - this.width) / 2; this.x = this.platform.x + this.localX; } else { this.x = canvas.width; }
+      
+      if (this.platform && type !== 'home') { this.localX = (this.platform.width - this.width) / 2; this.x = this.platform.x + this.localX; } 
+      else if (type !== 'redpig') { this.x = canvas.width; }
     }
+    
     drawSprite(sprite, pSize=pigPixelSize, offsetX = 0) {
-      let drawY = this.y + this.drawYOffset; let drawSize = (this.type === 'home') ? pSize * 1.5 : pSize;
-      for (let row = 0; row < sprite.length; row++) { for (let col = 0; col < sprite[row].length; col++) { if (sprite[row][col] !== 0) { ctx.fillStyle = colors[sprite[row][col]]; ctx.fillRect(this.x + offsetX + col * drawSize, drawY + row * drawSize, drawSize, drawSize); } } }
+      let drawY = Math.floor(this.y + this.drawYOffset); let drawX = Math.floor(this.x + offsetX);
+      let drawSize = (this.type === 'home') ? pSize * 1.5 : pSize;
+      for (let row = 0; row < sprite.length; row++) { for (let col = 0; col < sprite[row].length; col++) { if (sprite[row][col] !== 0) { ctx.fillStyle = colors[sprite[row][col]]; ctx.fillRect(drawX + col * drawSize, drawY + row * drawSize, drawSize, drawSize); } } }
     }
     draw() {
+      let cx = Math.floor(this.x + this.width / 2); let cy = Math.floor(this.y + this.drawYOffset + this.height / 2 + 4);
       if (this.type === 'boss_male') this.drawSprite(bossMaleSprite);
       else if (this.type === 'boss_female') this.drawSprite(bossFemaleSprite);
       else if (this.type === 'train' || this.type === 'train_double') { this.drawSprite(trainSprite, this.tSize); if (this.type === 'train_double') this.drawSprite(trainSprite, this.tSize, 96 * this.tSize); }
-      else if (this.type === 'email') { this.drawSprite(emailSprite); ctx.fillStyle = '#c0392b'; ctx.font = 'bold 12px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('至急', this.x + this.width / 2, this.y + this.drawYOffset + this.height / 2 + 4); ctx.textAlign = 'left'; }
-      else if (this.type === 'item_heal') { this.drawSprite(heartSprite); ctx.fillStyle = 'white'; ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('有休', this.x + this.width / 2, this.y + this.height / 2 + 4); ctx.textAlign = 'left'; }
+      else if (this.type === 'email') { this.drawSprite(emailSprite); ctx.fillStyle = '#c0392b'; ctx.font = 'bold 12px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('至急', cx, cy); ctx.textAlign = 'left'; }
+      else if (this.type === 'item_heal') { this.drawSprite(heartSprite); ctx.fillStyle = 'white'; ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('有休', cx, cy); ctx.textAlign = 'left'; }
       else if (this.type === 'item_acorn') {
         if (frame % 20 < 10) {
-          ctx.save(); ctx.globalAlpha = 0.5; let glowSize = pigPixelSize * 1.5; let hOffsetX = (this.width - 22 * glowSize) / 2; let hOffsetY = (this.height - 18 * glowSize) / 2; let drawY = this.y + this.drawYOffset + hOffsetY;
-          for (let row = 0; row < heartSprite.length; row++) { for (let col = 0; col < heartSprite[row].length; col++) { if (heartSprite[row][col] !== 0) { ctx.fillStyle = colors[6]; ctx.fillRect(this.x + hOffsetX + col * glowSize, drawY + row * glowSize, glowSize, glowSize); } } } ctx.restore();
+          ctx.save(); ctx.globalAlpha = 0.5; let glowSize = pigPixelSize * 1.5; let hOffsetX = (this.width - 22 * glowSize) / 2; let hOffsetY = (this.height - 18 * glowSize) / 2; let drawY = Math.floor(this.y + this.drawYOffset + hOffsetY);
+          for (let row = 0; row < heartSprite.length; row++) { for (let col = 0; col < heartSprite[row].length; col++) { if (heartSprite[row][col] !== 0) { ctx.fillStyle = colors[6]; ctx.fillRect(Math.floor(this.x + hOffsetX + col * glowSize), drawY + row * glowSize, glowSize, glowSize); } } } ctx.restore();
         }
         this.drawSprite(acornSprite);
       }
       else if (this.type === 'item_job_change') { 
-        if (frame % 20 < 10) { ctx.fillStyle = 'rgba(52, 152, 219, 0.4)'; ctx.beginPath(); ctx.arc(this.x + this.width / 2, this.y + this.height / 2, this.width, 0, Math.PI * 2); ctx.fill(); }
-        this.drawSprite(jobChangeSprite); ctx.fillStyle = '#ecf0f1'; ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('転職', this.x + this.width / 2, this.y + this.height / 2 + 4); ctx.textAlign = 'left';
+        if (frame % 20 < 10) { ctx.fillStyle = 'rgba(52, 152, 219, 0.4)'; ctx.beginPath(); ctx.arc(Math.floor(this.x + this.width / 2), Math.floor(this.y + this.height / 2), this.width, 0, Math.PI * 2); ctx.fill(); }
+        this.drawSprite(jobChangeSprite); ctx.fillStyle = '#ecf0f1'; ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('転職', cx, cy); ctx.textAlign = 'left';
+      }
+      else if (this.type === 'redpig') { 
+        ctx.save(); ctx.shadowColor = '#2ecc71'; ctx.shadowBlur = (frame % 20 < 10) ? 15 : 5;
+        let spr = (frame % 20 < 10) ? redpigSprite1 : redpigSprite2;
+        this.drawSprite(spr); 
+        ctx.restore();
+        ctx.fillStyle = '#e74c3c'; ctx.font = 'bold ' + Math.floor(pigPixelSize * 9) + 'px sans-serif'; 
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText('レ', Math.floor(this.x + this.width / 2), Math.floor(this.y + this.drawYOffset + this.height / 2 + 1)); 
+        ctx.textAlign = 'left';
       }
       else if (this.type === 'fireball') { 
         this.drawSprite(fireballSprite); 
         ctx.fillStyle = '#000000'; ctx.font = 'bold ' + Math.floor(pigPixelSize * 7) + 'px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-        ctx.fillText('激務', this.x + 8 * pigPixelSize, this.y + this.drawYOffset + 8 * pigPixelSize); 
+        ctx.fillText('激務', Math.floor(this.x + 8 * pigPixelSize), Math.floor(this.y + this.drawYOffset + 8 * pigPixelSize)); 
         ctx.textAlign = 'left'; 
       }
       else if (this.type === 'home') this.drawSprite(homeSprite); 
@@ -555,6 +649,11 @@
       else if (this.type.startsWith('train')) this.x -= gameSpeed * this.speedMulti;
       else if (this.type === 'email') { this.x -= gameSpeed * 1.3; this.drawYOffset = Math.sin(this.angle) * 20; this.angle += 0.05; }
       else if (this.type === 'fireball') this.x -= gameSpeed * 2.2; 
+      else if (this.type === 'redpig') { 
+        this.x -= gameSpeed * 1.15; 
+        this.drawYOffset = Math.sin(this.angle) * 20; 
+        this.angle += 0.08; 
+      } 
       else if (this.platform) {
         if (this.type.startsWith('boss')) {
            this.localX += this.localVx; if (this.localX <= 0) { this.localX = 0; this.localVx *= -1; } else if (this.localX >= this.platform.width - this.width) { this.localX = this.platform.width - this.width; this.localVx *= -1; }
@@ -568,7 +667,16 @@
     }
   }
 
-  function addScore(points, extraText = "") { score += points; popupText1 = "+" + points + " Point!"; popupText2 = extraText; popupTimer = 60; popupY = canvas.height * 0.35; }
+  function addScore(points, extraText = "") { 
+    let multiplier = player.dashTimer > 0 ? 2 : 1;
+    let actualPoints = points * multiplier;
+    score += actualPoints; 
+    let multiText = multiplier > 1 ? " (x2)" : "";
+    popupText1 = "+" + actualPoints + " Point!" + multiText; 
+    popupText2 = extraText; 
+    popupTimer = 60; 
+    popupY = canvas.height * 0.35; 
+  }
 
   function drawPopup() {
     if (popupTimer > 0) {
@@ -584,6 +692,15 @@
   }
 
   function spawnObjects() {
+    if (playTimeFrames > 1800 || loopCount > 0) {
+      spawnTimerRedPig--;
+      if (spawnTimerRedPig <= 0) {
+        let randY = groundY - 260 + Math.random() * 40; 
+        entities.push(new Entity('redpig', randY, null));
+        spawnTimerRedPig = 1000 + Math.random() * 1000; 
+      }
+    }
+
     if (frame % 70 === 0) {
       let pWidth = 100 + Math.random() * 40; let gapX = 50 + Math.random() * 40; let currentX = canvas.width;
       if (Math.random() < 0.75) { 
@@ -594,7 +711,9 @@
             platforms.push(new Platform(currentX, groundY - 330, pWidth)); currentX += pWidth + gapX;
             if (Math.random() < 0.5) { 
                let p4 = new Platform(currentX, groundY - 440, pWidth); platforms.push(p4);
-               if (Math.random() < 0.8) entities.push(new Entity(Math.random() < 0.5 ? 'item_job_change' : 'item_acorn', p4.y - 10, p4)); 
+               if (Math.random() < 0.8) {
+                 entities.push(new Entity(Math.random() < 0.5 ? 'item_job_change' : 'item_acorn', p4.y - 10, p4)); 
+               }
             }
           }
         }
@@ -604,27 +723,18 @@
       }
     }
 
-    spawnTimerGround -= gameSpeed;
-    if (spawnTimerGround <= 0) {
-      let r = Math.random();
-      if (r < 0.25) { entities.push(new Entity('item_heal', groundY)); spawnTimerGround = 300 + Math.random() * 150; }
-      else if (r < 0.55) { let tType = (Math.random() < 0.3) ? 'train_double' : 'train'; entities.push(new Entity(tType, groundY)); spawnTimerGround = (tType === 'train_double' ? 600 : 450) + Math.random() * 200; }
-      else if (r < 0.85) { entities.push(new Entity((Math.random() < 0.5) ? 'boss_male' : 'boss_female', groundY)); spawnTimerGround = 200 + Math.random() * 100; }
-      else { entities.push(new Entity('email', groundY - 40, null)); spawnTimerGround = 200 + Math.random() * 100; }
-    }
-
     spawnTimerAir -= gameSpeed;
     if (spawnTimerAir <= 0) {
       let validPlatforms = platforms.filter(p => p.x > canvas.width - 50);
       if (validPlatforms.length > 0) {
-        let targetP = validPlatforms[Math.floor(Math.random() * validPlatforms.length)]; let r = Math.random();
+        let targetP = validPlatforms[Math.floor(Math.random() * validPlatforms.length)]; let r2 = Math.random();
         if (targetP.y <= groundY - 330) { 
-          if (r < 0.5) { entities.push(new Entity('fireball', targetP.y - 30, null)); spawnTimerAir = 150 + Math.random() * 100; }
-          else if (r < 0.8) { entities.push(new Entity((Math.random() < 0.5) ? 'boss_male' : 'boss_female', targetP.y, targetP)); spawnTimerAir = 200 + Math.random() * 100; }
+          if (r2 < 0.5) { entities.push(new Entity('fireball', targetP.y - 30, null)); spawnTimerAir = 150 + Math.random() * 100; }
+          else if (r2 < 0.8) { entities.push(new Entity((Math.random() < 0.5) ? 'boss_male' : 'boss_female', targetP.y, targetP)); spawnTimerAir = 200 + Math.random() * 100; }
           else { entities.push(new Entity('email', targetP.y - 40, null)); spawnTimerAir = 200 + Math.random() * 100; }
         } else { 
-          if (r < 0.2) { entities.push(new Entity('item_heal', targetP.y, targetP)); spawnTimerAir = 300 + Math.random() * 150; }
-          else if (r < 0.7) { entities.push(new Entity((Math.random() < 0.5) ? 'boss_male' : 'boss_female', targetP.y, targetP)); spawnTimerAir = 200 + Math.random() * 100; }
+          if (r2 < 0.25) { entities.push(new Entity('item_heal', targetP.y, targetP)); spawnTimerAir = 300 + Math.random() * 150; }
+          else if (r2 < 0.7) { entities.push(new Entity((Math.random() < 0.5) ? 'boss_male' : 'boss_female', targetP.y, targetP)); spawnTimerAir = 200 + Math.random() * 100; }
           else { entities.push(new Entity('email', targetP.y - 40, null)); spawnTimerAir = 200 + Math.random() * 100; }
         }
       } else {
@@ -633,6 +743,15 @@
         else entities.push(new Entity('email', randY, null));
         spawnTimerAir = 200 + Math.random() * 150;
       }
+    }
+
+    spawnTimerGround -= gameSpeed;
+    if (spawnTimerGround <= 0) {
+      let r = Math.random();
+      if (r < 0.25) { entities.push(new Entity('item_heal', groundY)); spawnTimerGround = 300 + Math.random() * 150; }
+      else if (r < 0.50) { let tType = (Math.random() < 0.3) ? 'train_double' : 'train'; entities.push(new Entity(tType, groundY)); spawnTimerGround = (tType === 'train_double' ? 600 : 450) + Math.random() * 200; }
+      else if (r < 0.75) { entities.push(new Entity((Math.random() < 0.5) ? 'boss_male' : 'boss_female', groundY)); spawnTimerGround = 200 + Math.random() * 100; }
+      else { entities.push(new Entity('email', groundY - 40, null)); spawnTimerGround = 200 + Math.random() * 100; }
     }
   }
 
@@ -660,12 +779,12 @@
     grad.addColorStop(0, currentSky[0]); grad.addColorStop(0.5, currentSky[1]); grad.addColorStop(1, currentSky[2]);
     ctx.fillStyle = grad; ctx.fillRect(0, 0, canvas.width, canvas.height);
     
-    if (gameState === 'playing' || gameState === 'ending_run' || gameState === 'ending_home') bgOffset -= (gameSpeed * 0.3); 
+    if (gameState === 'playing' || gameState === 'ending_run' || gameState === 'ending_home' || gameState === 'fever_charge') bgOffset -= (gameSpeed * 0.3); 
     const buildingWidth = 60; if (bgOffset <= -buildingWidth * 10) bgOffset %= (buildingWidth * 10);
     let isDay = timeProgress > 0.6; let bColor = lerpColor([26,26,46], [52,73,94], timeProgress); 
 
     for(let i = 0; i < Math.ceil(canvas.width / buildingWidth) + 2; i++) {
-       let absoluteIndex = Math.floor(Math.abs(bgOffset) / buildingWidth) + i; let bx = (i * buildingWidth) + (bgOffset % buildingWidth); let bh = 100 + (Math.abs(Math.sin(absoluteIndex * 12.34)) * 150); 
+       let absoluteIndex = Math.floor(Math.abs(bgOffset) / buildingWidth) + i; let bx = Math.floor((i * buildingWidth) + (bgOffset % buildingWidth)); let bh = Math.floor(100 + (Math.abs(Math.sin(absoluteIndex * 12.34)) * 150)); 
        ctx.fillStyle = bColor; ctx.fillRect(bx, groundY - bh, buildingWidth - 5, bh);
        if (absoluteIndex % 2 === 0) { ctx.fillStyle = isDay ? '#bdc3c7' : '#e94560'; ctx.fillRect(bx + 10, groundY - bh + 20, 10, 15); ctx.fillRect(bx + 30, groundY - bh + 40, 10, 15); } 
        else if (absoluteIndex % 3 === 0) { ctx.fillStyle = isDay ? '#ecf0f1' : '#f1c40f'; ctx.fillRect(bx + 15, groundY - bh + 30, 20, 10); } 
@@ -673,7 +792,6 @@
     }
   }
 
-  // ★ ドット矢印描画関数（真っ直ぐ）
   function drawDotArrow(ctx, startX, startY, length, direction, color) {
     ctx.fillStyle = color; const size = 3; 
     if (direction === 'up') {
@@ -704,80 +822,63 @@
     ctx.restore();
   }
 
-  // ★ UIレイアウトの完璧な配置（中央ライン合わせ・カーニング・真上真下矢印）
   function drawUI() {
     ctx.fillStyle = '#2c3e50'; ctx.fillRect(0, groundY, canvas.width, canvas.height - groundY);
     ctx.fillStyle = '#e67e22'; ctx.fillRect(0, groundY, canvas.width, 8);
     
-    // 1. 報酬 
-    ctx.font = 'bold 22px sans-serif'; ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
-    ctx.fillStyle = '#ffffff'; ctx.fillText('報酬: ' + score, 20, groundY + 40);
+    ctx.font = 'bold 24px sans-serif'; ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+    ctx.fillStyle = '#ffffff'; ctx.fillText('報酬: ' + score, 20, groundY + 45);
     
-    // ★ 中央ラインの基準Y座標 (コントロールボタンの中央と合わせる)
-    let centerY = canvas.height - 90; 
+    let centerY = canvas.height - 85; 
+    let textRightEdge = canvas.width / 2 - 10; 
     
-    // ★ 2. メンタル・退職願のベースX座標 (左のボタンと被らない安全領域へ右揃えで配置)
-    let textRightEdge = canvas.width / 2 - 20; 
-    
-    // メンタル
-    let mentalY = centerY - 15; 
-    ctx.font = 'bold 16px sans-serif'; 
+    let mentalY = centerY - 16; 
+    ctx.font = 'bold 18px sans-serif'; 
     ctx.lineWidth = 2.5; ctx.lineJoin = "round";
-    ctx.textAlign = 'right'; // 右揃え
+    ctx.textAlign = 'right';
     ctx.strokeStyle = '#ffffff'; ctx.strokeText('メンタル:', textRightEdge, mentalY);
     ctx.fillStyle = '#ff0000'; ctx.fillText('メンタル:', textRightEdge, mentalY);
     
-    // アイコンの開始位置を調整し、文字と程よい隙間(カーニング)を作る
     let iconStartX = textRightEdge + 15; 
-    for (let i = 0; i < 3; i++) {
-      drawHeartUI(ctx, iconStartX + i * 24, mentalY - 2, 20, (hp - i >= 1));
-    }
+    let maxDrawHp = Math.max(3, Math.ceil(hp));
+    for (let i = 0; i < maxDrawHp; i++) { drawHeartUI(ctx, iconStartX + i * 26, mentalY - 2, 22, (hp - i >= 1)); }
 
-    // 3. 退職願
     let retireY = centerY + 18; 
     ctx.strokeStyle = '#ffffff'; ctx.strokeText('退職願:', textRightEdge, retireY);
     ctx.fillStyle = '#3498db'; ctx.fillText('退職願:', textRightEdge, retireY);
     
-    // 封筒アイコン開始位置（文字に近づけて一体感を出す）
-    for (let i = 0; i < 3; i++) {
-      drawEnvelope(ctx, iconStartX - 10 + i * 28, retireY - 12, 24, 16, (i < ammo));
-    }
+    for (let i = 0; i < 3; i++) { drawEnvelope(ctx, iconStartX - 8 + i * 30, retireY - 14, 24, 16, (i < ammo)); }
     
-    // ★ 遊び方画面時の Canvas内説明ドット矢印描画
     if (isHowToOpen) {
       ctx.font = 'bold 11px sans-serif';
-      
-      // 報酬（白）- 先端がオレンジのラインにピタッと乗るように長さを調整し、左にシフト
       ctx.fillStyle = '#ffffff'; ctx.textAlign = 'left';
       ctx.fillText('（現在のスコア。勤労(はし)り続けた命の対価だ！）', 20, groundY - 60);
-      drawDotArrow(ctx, 30, groundY - 55, 53, 'down', '#ffffff'); 
+      drawDotArrow(ctx, 30, groundY - 55, 60, 'down', '#ffffff'); 
 
-      // 矢印のX座標（「メ」と「退」の文字の頭を一直線に狙う）
       let arrowX = textRightEdge - 72; 
-
-      // メンタル（赤）- 文字の頭(メ)の真上から真っ直ぐ真下へ指す
       ctx.fillStyle = '#ff0000'; ctx.textAlign = 'left';
-      ctx.fillText('（ゼロになると過労で倒れるので注意だ！）', textRightEdge - 80, centerY - 65); 
-      drawDotArrow(ctx, arrowX, centerY - 55, 20, 'down', '#ff0000'); 
+      ctx.fillText('（ゼロになると過労で倒れるので注意だ！）', textRightEdge - 80, centerY - 55); 
+      drawDotArrow(ctx, arrowX, centerY - 45, 12, 'down', '#ff0000'); 
       
-      // 退職願（青）- 文字の頭(退)の真下から真っ直ぐ上へ
       ctx.fillStyle = '#3498db'; ctx.textAlign = 'left';
-      ctx.fillText('（最大3発まで貯められる願いの弾丸だ！）', textRightEdge - 80, centerY + 70); 
-      drawDotArrow(ctx, arrowX, centerY + 45, 15, 'up', '#3498db'); 
+      ctx.fillText('（最大3発まで貯められる願いの弾丸だ！）', textRightEdge - 80, centerY + 65); 
+      drawDotArrow(ctx, arrowX, centerY + 40, 15, 'up', '#3498db'); 
     }
   }
 
   function resetGame(isContinue = false) {
-    if (!isContinue) { score = 0; hp = 3.0; ammo = 0; gameSpeed = baseGameSpeed; loopCount = 0; } else { gameSpeed = savedGameSpeed; loopCount++; } 
+    if (!isContinue) { score = 0; hp = 3.0; ammo = 1; gameSpeed = baseGameSpeed; loopCount = 0; } else { gameSpeed = savedGameSpeed; loopCount++; } 
     targetFrames = 7200; frame = 0; playTimeFrames = 0;
-    spawnTimerGround = 150; spawnTimerAir = 250; entities.length = 0; projectiles.length = 0; platforms.length = 0; particles.length = 0;
-    player.y = groundY - pigHeight; player.dy = 0; player.isJumping = false; player.jobChangeTimer = 0; player.maxJumps = 1; player.opacity = 1.0; player.x = 60;
-    player.invincibleTimer = 0; popupTimer = 0; sysPopupTimer = 0; player.onGround = false;
+    spawnTimerGround = 150; spawnTimerAir = 250; spawnTimerRedPig = 1800;
+    feverChargeTimer = 0; endingWaitTimer = 0; chargeType = 'redpig';
+    entities.length = 0; projectiles.length = 0; platforms.length = 0; particles.length = 0;
+    player.y = groundY - pigHeight; player.dy = 0; player.isJumping = false; player.jobChangeTimer = 0; player.dashTimer = 0; player.maxJumps = 1; player.opacity = 1.0; player.x = 60;
+    player.invincibleTimer = 0; popupTimer = 0; sysPopupTimer = 0; player.onGround = true;
     document.getElementById('center-ui').style.display = 'none';
   }
 
   function startGame(isContinue = false) {
-    if (gameState === 'playing' || gameState === 'ending_run' || gameState === 'ending_home' || gameState === 'ending_enter' || gameState === 'password') return;
+    if (gameState === 'playing' || gameState === 'ending_run' || gameState === 'ending_home' || gameState === 'ending_enter' || gameState === 'fever_charge' || gameState === 'password') return;
     initAudio(); document.getElementById('center-ui').style.display = 'none'; 
     if (gameState === 'gameover' || gameState === 'start') { gameState = 'playing'; resetGame(false); }
     else if (gameState === 'continue') { gameState = 'playing'; resetGame(true); }
@@ -788,10 +889,67 @@
       requestAnimationFrame(animate); return;
     }
 
-    if (gameState === 'password') { drawBackground(); drawUI(); player.draw(); }
-    else if (gameState === 'start') { drawBackground(); drawUI(); player.draw(); } 
+    if (gameState === 'password' || gameState === 'start') { 
+      player.y = groundY - pigHeight;
+      drawBackground(); drawUI(); player.draw(); 
+    } 
     else if (gameState === 'gameover') { drawBackground(); drawUI(); } 
     
+    else if (gameState === 'fever_charge') {
+      feverChargeTimer--;
+      drawBackground(); drawUI();
+      for (let p of platforms) p.draw();
+      for (let p of projectiles) p.draw();
+      for (let e of entities) e.draw();
+      
+      player.draw();
+      
+      ctx.save();
+      let maxRadius = player.width * 2.5 * 0.8;
+      let radius = maxRadius * (1 - feverChargeTimer / 40);
+      
+      let chargeText = "";
+      if (chargeType === 'redpig') {
+        ctx.fillStyle = 'rgba(46, 204, 113, 0.5)'; 
+        chargeText = "無敵ダッシュ & 報酬2倍";
+      } else if (chargeType === 'job') {
+        ctx.fillStyle = 'rgba(52, 152, 219, 0.5)'; 
+        chargeText = "2段ジャンプ & バリア";
+      } else if (chargeType === 'acorn') {
+        ctx.fillStyle = 'rgba(231, 76, 60, 0.5)';  
+        chargeText = "メンタルMAX 4 & 全回復";
+      }
+      
+      ctx.beginPath();
+      ctx.arc(Math.floor(player.x + player.width / 2), Math.floor(player.y + player.height / 2), radius, 0, Math.PI * 2);
+      ctx.fill();
+
+      let shakeX = (Math.random() - 0.5) * 6;
+      let shakeY = (Math.random() - 0.5) * 6;
+      ctx.fillStyle = '#f1c40f'; 
+      ctx.strokeStyle = '#c0392b'; 
+      ctx.lineWidth = 5; 
+      ctx.font = 'bold 32px sans-serif'; 
+      ctx.textAlign = 'center'; 
+      ctx.textBaseline = 'middle';
+      ctx.strokeText(chargeText, canvas.width / 2 + shakeX, canvas.height / 2 - 50 + shakeY);
+      ctx.fillText(chargeText, canvas.width / 2 + shakeX, canvas.height / 2 - 50 + shakeY);
+      
+      ctx.restore();
+      
+      drawPopup();
+      
+      if (feverChargeTimer <= 0) {
+        gameState = 'playing';
+        if (chargeType === 'redpig') {
+          player.savedGameSpeed = gameSpeed;
+          gameSpeed = baseGameSpeed * 3.5; 
+        }
+        playSound('item'); 
+      }
+      frame++;
+    }
+
     else if (gameState === 'playing') {
       playTimeFrames++;
       if (playTimeFrames >= targetFrames) {
@@ -801,8 +959,13 @@
       } else { spawnObjects(); }
 
       if (playTimeFrames > 0 && playTimeFrames % 1200 === 0 && playTimeFrames !== targetFrames) {
-        gameSpeed = Math.min(6.0, gameSpeed + 0.3); score += 1000; 
-        sysPopupText = "残業延長！"; sysPopupSubText = "+1000 Point!"; sysPopupTimer = 100; sysPopupY = canvas.height * 0.4; playSound('overtime');
+        gameSpeed = Math.min(6.0, gameSpeed + 0.3); 
+        let multiplier = player.dashTimer > 0 ? 2 : 1;
+        let pt = 1000 * multiplier;
+        score += pt; 
+        sysPopupText = "残業延長！"; 
+        sysPopupSubText = "+" + pt + " Point!" + (multiplier > 1 ? " x2" : ""); 
+        sysPopupTimer = 100; sysPopupY = canvas.height * 0.4; playSound('overtime');
       }
 
       drawBackground(); drawUI();
@@ -810,42 +973,110 @@
       for (let i = projectiles.length - 1; i >= 0; i--) { projectiles[i].update(); if (projectiles[i].x > canvas.width) projectiles.splice(i, 1); }
       for (let i = entities.length - 1; i >= 0; i--) {
         let ent = entities[i]; ent.update(); let hitByProjectile = false; let drawY = ent.y + ent.drawYOffset; 
-        if (ent.type.startsWith('boss') || ent.type === 'email' || ent.type === 'fireball') {
-          for (let j = projectiles.length - 1; j >= 0; j--) { let p = projectiles[j]; if (p.x < ent.x + ent.width && p.x + p.width > ent.x && p.y < drawY + ent.height && p.y + p.height > drawY) { projectiles.splice(j, 1); hitByProjectile = true; break; } }
+        
+        // ★ 激務（fireball）を当たり判定から除外
+        if (ent.type.startsWith('boss') || ent.type === 'email') {
+          for (let j = projectiles.length - 1; j >= 0; j--) { 
+            let p = projectiles[j]; 
+            if (p.x < ent.x + ent.width && p.x + p.width > ent.x && p.hitboxY < drawY + ent.height && p.hitboxY + p.hitboxHeight > drawY) { 
+              projectiles.splice(j, 1); hitByProjectile = true; break; 
+            } 
+          }
         }
         if (hitByProjectile) { playSound('defeat'); addScore(100); entities.splice(i, 1); continue; }
+        
         if (player.x < ent.x + ent.width && player.x + player.width > ent.x && player.y < drawY + ent.height && player.y + player.height > drawY) {
-          if (ent.type === 'item_heal') { playSound('item'); if(hp < 3) hp += 1; addScore(50); entities.splice(i, 1); } 
-          else if (ent.type === 'item_acorn') { playSound('item'); hp = 3; addScore(500); entities.splice(i, 1); } 
-          else if (ent.type === 'item_job_change') { playSound('item'); addScore(500, "転職成功！"); player.jobChangeTimer = 30 * 60; player.maxJumps = 2; entities.splice(i, 1); } 
-          else {
-            if (player.dy > 0 && player.y + player.height - player.dy <= drawY + 15 && ent.isStompable) {
-              player.bounce(); playSound('defeat'); entities.splice(i, 1);
-              if (ent.type.startsWith('boss')) { if (ammo < 3) { ammo += 1; addScore(100, "退職願 Get!"); } else addScore(100); } else addScore(100);
-            } else { player.hit(1.0); }
+          
+          if (ent.type === 'redpig') {
+            playSound('fever_charge'); 
+            addScore(500, ""); 
+            player.dashTimer = 150; 
+            gameState = 'fever_charge'; 
+            chargeType = 'redpig'; 
+            feverChargeTimer = 40;
+            entities.splice(i, 1); continue;
           }
-        } else if (ent.x + ent.width < 0) { entities.splice(i, 1); score += 10; playSound('point'); }
+
+          if (player.dashTimer > 0) {
+            if (ent.isStompable || ent.type === 'email') {
+               playSound('defeat'); addScore(200, "無敵撃破!"); entities.splice(i, 1); continue;
+            }
+          } else {
+            if (ent.type === 'item_heal') { playSound('item'); if(hp < 3) hp += 1; addScore(50); entities.splice(i, 1); } 
+            else if (ent.type === 'item_acorn') { 
+              playSound('fever_charge'); 
+              hp = 4; 
+              addScore(750, ""); 
+              gameState = 'fever_charge'; 
+              chargeType = 'acorn'; 
+              feverChargeTimer = 40;
+              entities.splice(i, 1); continue;
+            } 
+            else if (ent.type === 'item_job_change') { 
+              playSound('fever_charge'); 
+              addScore(500, ""); 
+              player.jobChangeTimer = 30 * 60; 
+              player.maxJumps = 2; 
+              gameState = 'fever_charge'; 
+              chargeType = 'job'; 
+              feverChargeTimer = 40;
+              entities.splice(i, 1); continue;
+            } 
+            else {
+              if (player.dy > 0 && player.y + player.height - player.dy <= drawY + 15 && ent.isStompable) {
+                player.bounce(); playSound('defeat'); entities.splice(i, 1);
+                if (ent.type.startsWith('boss')) { if (ammo < 3) { ammo += 1; addScore(100, "退職願 Get!"); } else addScore(100); } else addScore(100);
+              } else { player.hit(1.0); }
+            }
+          }
+        } else if (ent.x + ent.width < 0) { 
+          entities.splice(i, 1); 
+          if (ent.type !== 'redpig') { 
+            let pt = player.dashTimer > 0 ? 20 : 10;
+            score += pt; 
+            playSound('point'); 
+          }
+        } else if (ent.y > canvas.height) {
+          entities.splice(i, 1); 
+        }
       }
       updateAndDrawParticles(); player.update(); drawPopup(); frame++;
     }
     else if (gameState === 'ending_run') {
       drawBackground(); drawUI(); for (let p of platforms) p.update(); for (let e of entities) e.update(); for (let p of projectiles) p.update();
       updateAndDrawParticles(); player.update(); drawPopup(); frame++; endingTimer--;
-      if (endingTimer <= 0) { gameState = 'ending_home'; savedGameSpeed = gameSpeed; let home = new Entity('home', groundY); home.x = canvas.width; entities.push(home); }
+      if (endingTimer <= 0) { 
+        gameState = 'ending_home'; 
+        savedGameSpeed = gameSpeed; 
+        let home = new Entity('home', groundY); home.x = canvas.width; entities.push(home); 
+        playSound('home_bgm'); 
+      }
     }
     else if (gameState === 'ending_home') {
       gameSpeed = 1.5; drawBackground(); drawUI(); for (let p of platforms) p.update(); for (let e of entities) e.update(); player.update(); drawPopup(); frame++;
       let home = entities.find(e => e.type === 'home'); if (home && home.x <= canvas.width / 2) { gameState = 'ending_enter'; }
     }
     else if (gameState === 'ending_enter') {
-      drawBackground(); drawUI(); for (let p of platforms) p.draw(); for (let e of entities) e.draw(); player.x += 1.5;
-      let home = entities.find(e => e.type === 'home'); if (home && player.x > home.x + 40) { player.opacity = 0; }
-      player.draw(); drawPopup(); frame++; if (player.opacity <= 0) { gameState = 'continue'; showContinueUI(); }
+      drawBackground(); drawUI(); for (let p of platforms) p.draw(); for (let e of entities) e.draw(); 
+      if (player.opacity > 0) player.x += 1.5;
+      
+      let home = entities.find(e => e.type === 'home'); 
+      if (home && player.x > home.x + 40 && player.opacity > 0) { 
+        player.opacity = 0; 
+        playSound('door_close'); 
+        endingWaitTimer = 60; 
+      }
+      player.draw(); drawPopup(); frame++; 
+      if (player.opacity <= 0) { 
+        endingWaitTimer--;
+        if (endingWaitTimer <= 0) {
+          gameState = 'continue'; showContinueUI(); 
+        }
+      }
     }
     requestAnimationFrame(animate);
   }
 
-  // --- イベントリスナー ---
   document.getElementById('btn-unlock').addEventListener('click', () => {
     const val = document.getElementById('pw-input').value;
     if (val === '0710') {
@@ -860,16 +1091,24 @@
   document.getElementById('btn-quit').addEventListener('click', (e) => { e.preventDefault(); gameState = 'start'; resetGame(false); showStartUI(); });
   document.getElementById('btn-quit').addEventListener('touchstart', (e) => { e.preventDefault(); gameState = 'start'; resetGame(false); showStartUI(); }, {passive: false});
 
-  const doJump = (e) => { e.preventDefault(); initAudio(); if (gameState === 'start') { startGame(); setTimeout(() => { if (gameState === 'playing') player.jump(); }, 50); } else if (gameState === 'playing') player.jump(); };
+  const doJump = (e) => { 
+    e.preventDefault(); initAudio(); 
+    if (gameState === 'start') { startGame(); setTimeout(() => { if (gameState === 'playing' || gameState === 'fever_charge') player.jump(); }, 50); } 
+    else if (gameState === 'playing' || gameState === 'fever_charge') player.jump(); 
+  };
   document.getElementById('btn-jump').addEventListener('touchstart', doJump, {passive: false}); document.getElementById('btn-jump').addEventListener('mousedown', doJump);
 
-  const doAttack = (e) => { e.preventDefault(); initAudio(); if (gameState === 'start') startGame(); else if (gameState === 'playing' && ammo > 0) { projectiles.push(new Projectile()); ammo--; } };
+  const doAttack = (e) => { 
+    e.preventDefault(); initAudio(); 
+    if (gameState === 'start') startGame(); 
+    else if ((gameState === 'playing' || gameState === 'fever_charge') && ammo > 0) { projectiles.push(new Projectile()); ammo--; } 
+  };
   document.getElementById('btn-attack').addEventListener('touchstart', doAttack, {passive: false}); document.getElementById('btn-attack').addEventListener('mousedown', doAttack);
 
   window.addEventListener('keydown', (e) => {
     if (['Space','Enter','ArrowUp','KeyZ'].includes(e.code)) {
       initAudio(); if (gameState === 'start') startGame();
-      else if (gameState === 'playing') { if (e.code === 'Space' || e.code === 'ArrowUp') player.jump(); if (e.code === 'Enter' || e.code === 'KeyZ') doAttack(e); }
+      else if (gameState === 'playing' || gameState === 'fever_charge') { if (e.code === 'Space' || e.code === 'ArrowUp') player.jump(); if (e.code === 'Enter' || e.code === 'KeyZ') doAttack(e); }
     }
   });
 
@@ -887,8 +1126,9 @@
     setTimeout(() => {
       drawIcon('icon-pig', pigSprite, 'pig', 40, 40, 1.2); 
       drawIcon('icon-heal', heartSprite, 'heal', 40, 40, 0.85);
-      drawIcon('icon-acorn', acornSprite, 'acorn', 40, 40, 0.85); 
+      drawIcon('icon-acorn', acornSprite, 'acorn', 40, 40, 0.75); 
       drawIcon('icon-job', jobChangeSprite, 'job', 40, 40, 0.85);
+      drawIcon('icon-redpig', redpigSprite1, 'redpig', 40, 40, 0.95); 
       drawIcon('icon-mail', emailSprite, 'mail', 40, 40, 1.0); 
       drawDoubleBossIcon();
       drawIcon('icon-fire', fireballSprite, 'fire', 40, 40, 1.0); 
